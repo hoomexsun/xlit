@@ -1,7 +1,8 @@
 from pathlib import Path
-from typing import Dict, List, Tuple, Union
+from typing import List, Tuple, Union
 
 import enchant
+from tqdm import tqdm
 
 from src.mt_ import MTransliteration
 from utils import save_wordmap
@@ -87,7 +88,6 @@ def run_wordmap(
 # 4. Run evaluate to calculate WER and CER
 # CER -> normalize Levenshtein distance to [0, 1]
 # d(a,b) / max(len(a), len(b))
-#! AttributeError: module 'enchant' has no attribute 'utils'
 def run_evaluate(
     filename: Union[str, Path] = "",
     output_dir: Union[str, Path] = "",
@@ -116,7 +116,7 @@ def run_evaluate(
     words = sorted(transcribed_dict.keys())
     transliterated_dict = {
         word_bn: mt.transliterate(word_bn)
-        for word_bn in sorted(transcribed_dict.keys())
+        for word_bn in tqdm(words, desc="Transliterating")
     }
     comparison = []
 
@@ -124,7 +124,7 @@ def run_evaluate(
     N = 0  # Number of characters
     err = 0  # Total edit distance
     num_mismatch = 0  # Number of words with error
-    for word in words:
+    for idx, word in enumerate(tqdm(words, desc="Evaluating")):
         target = transcribed_dict.get(word, "")
         output = transliterated_dict.get(word, "")
         if target != output:
@@ -134,8 +134,8 @@ def run_evaluate(
         N += max(len(target), len(output))
         comparison.append(f"{word}\t{target}\t{output}\t{edit_distance}")
 
-    accuracy_word: float = f"{1-num_mismatch / M:02f}"
-    accuracy_character: float = f"{1-err / N :02f}"
+    accuracy_word: float = f"{(1-num_mismatch / M)*100=:.02f}"
+    accuracy_character: float = f"{(1-err / N)*100=:.02f}"
     result_content: str = (
         f"Word Level Accuracy={accuracy_word} | {num_mismatch=} | {M=}\n"
         f"Character Level Accuracy={accuracy_character} | {err=} | {N=}\n"

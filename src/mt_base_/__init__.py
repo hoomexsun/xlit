@@ -1,3 +1,4 @@
-from ..lon_ import Bengali, MeeteiMayek
+from .b2m import Baseline, BaselineExtended
 
-from .b2m import B2M
+
+__all__ = ["Baseline", "BaselineExtended"]

@@ -31,7 +31,7 @@ class Baseline:
             mm.letter_un: {bn.letter_u, bn.letter_uu},
             mm.letter_i: {bn.letter_i, bn.letter_ii},
             mm.letter_pham: {bn.letter_pha},
-            mm.letter_a: {bn.letter_a},
+            mm.letter_atiya: {bn.letter_a},
             mm.letter_gok: {bn.letter_ga},
             mm.letter_jham: {bn.letter_jha},
             mm.letter_rai: {
@@ -111,6 +111,13 @@ class Baseline:
             for char_mm, char_bn_list in self.original_map.items()
             for char_bn in char_bn_list
         }
+        self.sorted_keys = sorted(self.charmap.keys(), key=len, reverse=True)
+
+    def transliterate(self, word_bn: str):
+        word_mm = word_bn
+        for key in self.sorted_keys:
+            word_mm = word_mm.replace(key, self.charmap[key])
+        return word_mm
 
 
 class BaselineExtended:
@@ -122,6 +129,7 @@ class BaselineExtended:
     def __init__(self) -> None:
         bn = Bengali()
         mm = MeeteiMayek()
+        self.baseline = Baseline()
         self.extra_charmap = {
             f"{bn.sign_virama}{bn.letter_ya}": f"{mm.apun_iyek}{mm.letter_yang}",
             f"{bn.sign_virama}{bn.letter_yya}": f"{mm.apun_iyek}{mm.letter_yang}",
@@ -131,3 +139,13 @@ class BaselineExtended:
             f"{bn.sign_virama}{bn.letter_la}": f"{mm.apun_iyek}{mm.letter_lai}",
             f"{bn.sign_virama}{bn.letter_w}": f"{mm.apun_iyek}{mm.letter_wai}",
         }
+
+    def transliterate(self, word_bn: str):
+        word_mm = word_bn
+        # Implement extra parts first
+        for key in self.extra_charmap:
+            word_mm = word_mm.replace(key, self.extra_charmap[key])
+        # Then implement the baseline
+        for key in self.baseline.sorted_keys:
+            word_mm = word_mm.replace(key, self.baseline.charmap[key])
+        return word_mm

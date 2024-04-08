@@ -124,8 +124,8 @@ def evaluate(
         if len(fields) > 5:
             distribution[fields[5]] += 1
 
-    accuracy_word: float = f"{1-num_mismatch/M=:.02f}"
-    accuracy_character: float = f"{1-err/N=:.02f}"
+    accuracy_word: float = f"{(1-num_mismatch/M)*100=:.02f}"
+    accuracy_character: float = f"{(1-err/N)*100=:.02f}"
     result_content: str = (
         f"Word Level Accuracy={accuracy_word} | {num_mismatch=} | {M=}\n"
         f"Character Level Accuracy={accuracy_character} | {err=} | {N=}\n"
