@@ -1,10 +1,11 @@
 from pathlib import Path
-from typing import List, Tuple, Union
+from typing import Callable, List, Tuple, Union
 
 import enchant
 from tqdm import tqdm
 
 from src.mt_ import MTransliteration
+from src.mt_base_ import Baseline, BaselineExtended
 from utils import save_wordmap
 
 
@@ -85,12 +86,11 @@ def run_wordmap(
     save_wordmap(wordmap=wordmap, wordmap_file=wordmap_file)
 
 
-# 4. Run evaluate to calculate WER and CER
-# CER -> normalize Levenshtein distance to [0, 1]
-# d(a,b) / max(len(a), len(b))
+# 4. Run evaluate using Proposed Transliteration
 def run_evaluate(
     filename: Union[str, Path] = "",
     output_dir: Union[str, Path] = "",
+    use_root: bool = True,
 ) -> None:
     """
     Input (transcribed.txt): words_bn\twords_mm
@@ -104,8 +104,88 @@ def run_evaluate(
         filename or "transcribed.txt",
         output_dir,
         output_files=["transliterated.txt", "comparison.tsv", "result.txt"],
-        use_root=True,
+        use_root_for_input=use_root,
     )
+    # Proposed Model
+    save_evaluation(
+        model_name="Proposed Transliteration",
+        transliteration_func=mt.transliterate,
+        transcribed_file=transcribed_file,
+        transliterated_file=transliterated_file,
+        comparison_file=comparison_file,
+        result_file=result_file,
+    )
+
+
+# 5. Run evaluate using Baseline Transliteration
+def run_evaluate_baseline(
+    filename: Union[str, Path] = "",
+    output_dir: Union[str, Path] = "",
+    use_root_for_input: bool = True,
+) -> None:
+    """
+    Input (transcribed.txt): words_bn\twords_mm
+    Output:
+        1. transliterated.txt:
+        2. comparison.txt:
+        3. result.txt:
+    """
+    baseline = Baseline()
+    baseline_ext = BaselineExtended()
+    (
+        transcribed_file,
+        transliterated_file,
+        comparison_file,
+        result_file,
+        ext_transliterated_file,
+        ext_comparison_file,
+        ext_result_file,
+    ) = prepare_files(
+        filename or "transcribed.txt",
+        output_dir,
+        output_files=[
+            "transliterated.txt",
+            "comparison.tsv",
+            "result.txt",
+            "ext_transliterated.txt",
+            "ext_comparison.tsv",
+            "ext_result.txt",
+        ],
+        use_root_for_input=use_root_for_input,
+        default_root_dir="examples/mt_base_",
+    )
+
+    # Baseline
+    save_evaluation(
+        model_name="Baseline",
+        transliteration_func=baseline.transliterate,
+        transcribed_file=transcribed_file,
+        transliterated_file=transliterated_file,
+        comparison_file=comparison_file,
+        result_file=result_file,
+    )
+
+    # Baseline Extended
+    save_evaluation(
+        model_name="Baseline Extended",
+        transliteration_func=baseline_ext.transliterate,
+        transcribed_file=transcribed_file,
+        transliterated_file=ext_transliterated_file,
+        comparison_file=ext_comparison_file,
+        result_file=ext_result_file,
+    )
+
+
+# CER -> normalize Levenshtein distance to [0, 1]
+# d(a,b) / max(len(a), len(b))
+def save_evaluation(
+    model_name: str,
+    transliteration_func: Callable,
+    transcribed_file: Path,
+    transliterated_file: Path,
+    comparison_file: Path,
+    result_file: Path,
+):
     word_pairs: str = sorted(
         transcribed_file.read_text(encoding="utf-8").strip().split("\n")
     )
@@ -115,16 +195,15 @@ def run_evaluate(
         transcribed_dict[word_bn] = transcribed_word_mm
     words = sorted(transcribed_dict.keys())
     transliterated_dict = {
-        word_bn: mt.transliterate(word_bn)
-        for word_bn in tqdm(words, desc="Transliterating")
+        word_bn: transliteration_func(word_bn)
+        for word_bn in tqdm(words, desc=f"Transliterating using {model_name}")
     }
     comparison = []
-
     M = len(words)  # number of words
     N = 0  # Number of characters
     err = 0  # Total edit distance
     num_mismatch = 0  # Number of words with error
-    for idx, word in enumerate(tqdm(words, desc="Evaluating")):
+    for idx, word in enumerate(tqdm(words, desc=f"Evaluating {model_name}")):
         target = transcribed_dict.get(word, "")
         output = transliterated_dict.get(word, "")
         if target != output:
@@ -134,12 +213,12 @@ def run_evaluate(
         N += max(len(target), len(output))
         comparison.append(f"{word}\t{target}\t{output}\t{edit_distance}")
 
-    accuracy_word: float = f"{(1-num_mismatch / M)*100=:.02f}"
-    accuracy_character: float = f"{(1-err / N)*100=:.02f}"
     result_content: str = (
-        f"Word Level Accuracy={accuracy_word} | {num_mismatch=} | {M=}\n"
-        f"Character Level Accuracy={accuracy_character} | {err=} | {N=}\n"
+        f"{(num_mismatch/M)*100:.02f}\n{(err/N)*100:.02f}\n"
+        f"Word Level Accuracy={(1-num_mismatch/M)*100=:.02f}% | {num_mismatch=} | {M=}\n"
+        f"Character Level Accuracy={(1-err/N)*100=:.02f}% | {err=} | {N=}"
     )
+
     result_file.write_text(result_content)
     print(result_content)
 
@@ -166,10 +245,11 @@ def prepare_files(
     filename: Union[str, Path],
     output_dir: Union[str, Path],
     output_files: List[Union[str, Path]],
-    use_root: bool = False,
+    use_root_for_input: bool = False,
+    default_root_dir: str = "examples/mt_",
 ) -> Tuple[Path]:
-    root_dir = Path("examples/mt_")
-    filename = filename if not use_root else root_dir / filename
+    root_dir = Path(default_root_dir)
+    filename = filename if not use_root_for_input else root_dir / filename
     data_file = root_dir / "words.txt" if not filename else Path(filename)
     output_files = [
         root_dir / file if not output_dir else Path(output_dir) / file
@@ -186,3 +266,6 @@ if __name__ == "__main__":
     # run_detailed()
     # run_wordmap()
     run_evaluate()
+
+    # Baseline
+    run_evaluate_baseline()
