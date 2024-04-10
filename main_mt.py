@@ -261,8 +261,8 @@ def prepare_files(
 
 
 if __name__ == "__main__":
-    # run_simple()
-    # run_detailed()
-    # run_wordmap()
+    run_simple()
+    run_detailed()
+    run_wordmap()
     run_evaluate()
-    # run_evaluate_baseline()
+    run_evaluate_baseline()

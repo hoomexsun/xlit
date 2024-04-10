@@ -36,6 +36,7 @@ extras*
 
 # Specific to data
 data/*/*/*.txt
+data/*/*/*.tsv
 
 # Specific to examples/gc_
 examples/gc_/detailed.txt

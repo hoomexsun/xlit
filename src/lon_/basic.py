@@ -807,3 +807,19 @@ class Bengali(Alphabet):
             | self.final_au
             | self.final_xu
         )
+
+        # Digits set
+        self.digit_set: Set[str] = {
+            chr(char) for char in range(ord(self.digit_zero), ord(self.digit_nine) + 1)
+        }
+
+        # Punctuation set
+        self.punctuation_set: Set[str] = {
+            self.sign_candrabindu,
+            self.sign_visarga,
+            self.sign_avagraha,
+        }
+
+        self.incomplete_chars_set: Set[str] = {
+            self.sign_nukta, self.mark_au,
+        }

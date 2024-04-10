@@ -37,7 +37,6 @@ def evaluate(data_dict: Dict[str, str]):
 
 
 def plot(data_dict: Dict[str, str]):
-    models = ["baseline", "baseline2", "proposed"]
     metrics = ["WER", "CER"]
     fig, axs = plt.subplots(1, 2, figsize=(12, 6))
 
@@ -47,9 +46,9 @@ def plot(data_dict: Dict[str, str]):
         for data_type, transcribed_file in data_dict.items():
             parent_dir = Path(transcribed_file).parent
             result_files = [
-                parent_dir / f"mt_/result.txt",
                 parent_dir / f"mt_base_/result.txt",
                 parent_dir / f"mt_base_/ext_result.txt",
+                parent_dir / f"mt_/result.txt",
             ]
 
             wer_values = []
@@ -75,12 +74,21 @@ def plot(data_dict: Dict[str, str]):
         ax.legend()
         ax.grid(True)
         ax.set_xticks([0, 1, 2])
-        ax.set_xticklabels(["Baseline", "Baseline2", "Proposed"])
+        ax.set_xticklabels(
+            [
+                "Baseline",
+                "Baseline2",
+                "Proposed",
+            ]
+        )
+        # ax.set_ylim([0, 100])
+
+    plt.savefig(Path("data/graph.png"))
 
     plt.tight_layout()
     plt.show()
 
 
 if __name__ == "__main__":
-    # main(False, True)
-    main(True, True)
+    main(False, True)
+    # main(True, True)

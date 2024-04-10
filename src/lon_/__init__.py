@@ -2,11 +2,11 @@ from typing import List
 from matplotlib import pyplot as plt
 import numpy as np
 
-from .enums import PoA, MoA, Phoneme, Sievers, Parker
+from .enums import Phoneme
 from .basic import PoA, MoA, PhonemeInventory, ARPABETPhoneme, MeeteiMayek, Bengali
 
-
 __all__ = [
+    "Phoneme",
     "PoA",
     "MoA",
     "PhonemeInventory",

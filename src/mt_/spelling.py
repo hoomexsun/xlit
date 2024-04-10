@@ -50,36 +50,57 @@ class Spelling:
 
         # Schwa Addition in Spelling Module
         # Use virama to show cluster and add schwa wherever necessary
-        #! Extend this for all length
-        if (
-            len(syllable_phonemes) == 1
-            and syllable_phonemes[0] in self.pi.phoneme_set_C
-        ):
-            syllable_phonemes.append(Phoneme.x.value)
-        elif (
-            len(syllable_phonemes) == 2
-            and syllable_phonemes[0] in self.pi.phoneme_set_C
-            and syllable_phonemes[1] in self.pi.phoneme_set_C
-        ):
-            syllable_phonemes.insert(1, Phoneme.x.value)
-        elif (
-            len(syllable_phonemes) == 3
-            and syllable_phonemes[0] in self.pi.phoneme_set_C
-            and syllable_phonemes[1] == self.virama
-            and syllable_phonemes[2] in self.pi.phoneme_set_C
-        ):
-            syllable_phonemes.append(Phoneme.x.value)
-        elif (
-            len(syllable_phonemes) == 3
-            and syllable_phonemes[0] in self.pi.phoneme_set_C
-            and syllable_phonemes[1] in self.pi.phoneme_set_C
-            and syllable_phonemes[2] == self.virama
-        ):
-            syllable_phonemes.insert(1, Phoneme.x.value)
+        new_syllable_phonemes: List[str] = []
+
+        last_idx = len(syllable_phonemes) - 1
+        for idx, phoneme in enumerate(syllable_phonemes):
+            if phoneme in self.pi.phoneme_set_C:
+                # C
+                if last_idx == 0:
+                    new_syllable_phonemes.append(phoneme)
+                    new_syllable_phonemes.append(Phoneme.x.value)
+                # .C ..C ...C ....C
+                elif idx == last_idx:
+                    new_syllable_phonemes.append(phoneme)
+                # CV .CV CV. ..CV CV... ...CV.
+                # C+ .C+ C+. ..C+ C+... ...C+.
+                elif (
+                    idx < last_idx
+                    and syllable_phonemes[idx + 1] not in self.pi.phoneme_set_C
+                ):
+                    new_syllable_phonemes.append(phoneme)
+                # CC .CC CC. ..CC CC... ...CC. <- First C
+                else:
+                    new_syllable_phonemes.append(phoneme)
+                    new_syllable_phonemes.append(Phoneme.x.value)
+                # V / 09cd
+            else:
+                new_syllable_phonemes.append(phoneme)
+
+        # elif (
+        #     len(syllable_phonemes) == 2
+        #     and syllable_phonemes[0] in self.pi.phoneme_set_C
+        #     and syllable_phonemes[1] in self.pi.phoneme_set_C
+        # ):
+        #     syllable_phonemes.insert(1, Phoneme.x.value)
+        # elif (
+        #     len(syllable_phonemes) == 3
+        #     and syllable_phonemes[0] in self.pi.phoneme_set_C
+        #     and syllable_phonemes[1] == self.virama
+        #     and syllable_phonemes[2] in self.pi.phoneme_set_C
+        # ):
+        #     syllable_phonemes.append(Phoneme.x.value)
+        # elif (
+        #     len(syllable_phonemes) == 3
+        #     and syllable_phonemes[0] in self.pi.phoneme_set_C
+        #     and syllable_phonemes[1] in self.pi.phoneme_set_C
+        #     and syllable_phonemes[2] == self.virama
+        # ):
+        #     syllable_phonemes.insert(1, Phoneme.x.value)
 
         # Remove if first char is virama in a syllable
-        if syllable_phonemes[0] == self.virama:
-            syllable_phonemes = syllable_phonemes[1:]
+        if new_syllable_phonemes[0] == self.virama:
+            new_syllable_phonemes = new_syllable_phonemes[1:]
 
         # 3. Remove non-phonemes and empty syllables
         syllable_phonemes = [
@@ -88,7 +109,7 @@ class Spelling:
             if phoneme in self.pi.phoneme_set_all or phoneme == self.virama
         ]
 
-        return syllable_phonemes
+        return new_syllable_phonemes
 
     def __run(self, phoneme_list: List[str]) -> str:
         S = self.mm_begin[phoneme_list[0]]
@@ -96,7 +117,8 @@ class Spelling:
         flag = True if phoneme_list[0] in self.pi.phoneme_set_V else False
         for idx, phoneme in enumerate(phoneme_list[1:]):
             if phoneme == self.virama:
-                if idx != len(phoneme_list) - 2:
+                # if idx != len(phoneme_list) - 2:
+                if idx != len(phoneme_list) - 2 and not flag:
                     S += self.mm_apun
             elif flag:
                 S += self.mm_end[phoneme]

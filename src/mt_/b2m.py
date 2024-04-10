@@ -182,3 +182,13 @@ class BnErrors:
             **self.errors_map_unic,
             **self.errors_map_type,
         }
+        # Valid set 1
+        self.valid_letters_set: Set[str] = bn.independent_consonant_set.union(
+            bn.dependent_consonant_set,
+            bn.independent_vowel_set,
+            bn.dependent_vowel_set,
+            {bn.sign_virama},
+        )
+
+    def filter_valid_bengali_letters(self, word):
+        return "".join([char for char in word if char in self.valid_letters_set])
