@@ -27,8 +27,11 @@ class Syllabification:
         markers = self.__phoneme_based_markers(phoneme_list, markers)
 
         syllabified_word = self.__prepare_syllabified_word(char_list, markers)
+        syllabified_phonemes = self.__prepare_syllabified_word(
+            phoneme_list, markers, sep="."
+        )
 
-        return syllabified_word
+        return syllabified_word, syllabified_phonemes
 
     def __separate_phoneme(self, word: str) -> Tuple[List[str], List[str]]:
         # 1. Extracting phonemes from word-bn
@@ -101,16 +104,16 @@ class Syllabification:
         return markers
 
     def __prepare_syllabified_word(
-        self, char_list: List[str], markers: List[bool]
+        self, char_list: List[str], markers: List[bool], sep: str = ""
     ) -> List[str]:
         syllabified_word = []
         used_idx = 0
         for idx, marker in enumerate(markers):
             if marker:
-                syllable = "".join(char_list[used_idx : idx + 1])
+                syllable = sep.join(char_list[used_idx : idx + 1])
                 syllabified_word.append(syllable)
                 used_idx = idx + 1
-        syllable = "".join(char_list[used_idx:])
+        syllable = sep.join(char_list[used_idx:])
         syllabified_word.append(syllable)
 
         return syllabified_word

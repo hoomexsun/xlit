@@ -11,22 +11,16 @@ def main(
     run_eval: bool = False,
     run_plot: bool = False,
 ):
-
-    # Name: Location
     data_dict: Dict[str, str] = {
         "News-Indigenous": "data/news_ind/transcribed.txt",
         "News-Exotic": "data/news_exo/transcribed.txt",
         "EM-corpus": "data/em/transcribed.txt",
         "IndicTTS": "data/indic/transcribed.txt",
     }
-    # try:
-    #     if run_eval:
-    #         evaluate(data_dict)
-    #     if run_plot:
-    #         plot(data_dict)
-    # except FileNotFoundError:
-    #     print("Data file is missing!")
-    plot(data_dict)
+    if run_eval:
+        evaluate(data_dict)
+    if run_plot:
+        plot(data_dict)
 
 
 def evaluate(data_dict: Dict[str, str]):

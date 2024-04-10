@@ -40,10 +40,28 @@ class MTransliteration:
         word: str,
         include_syllabified: bool = False,
         include_phonemes: bool = False,
+        sep: str = "/",
     ) -> str:
-        syllabified_word = self.syllabification.syllabify(word)
-        word_mm = self.spelling.spell(
-            syllabified_word=syllabified_word, include_phonemes=include_phonemes
-        )
+        # 1. Correct spelling first
+        # 2. Syllabify word_bn and
+        syllabified_word_bn, syllabified_phonemes = self.syllabification.syllabify(word)
+        # 3. Spelling
+        word_mm, intermediate_phoneme = self.spelling.spell(syllabified_word_bn)
 
-        return word_mm if not include_syllabified else f"{syllabified_word}\t{word_mm}"
+        # Prepare result string
+        res = ""
+        if include_syllabified:
+            if include_phonemes:
+                syllabified_phonemes = sep.join(syllabified_phonemes)
+                res += f"{syllabified_phonemes}\t"
+            syllabified_word_bn = sep.join(syllabified_word_bn)
+            res += f"{syllabified_word_bn}\t"
+        if include_phonemes:
+            intermediate_phoneme = sep.join(intermediate_phoneme)
+            res += f"{intermediate_phoneme}\t"
+            syllabified_word_mm = sep.join(word_mm)
+            res += f"{syllabified_word_mm}\t"
+        word_mm = "".join(word_mm)
+        res += word_mm
+
+        return res

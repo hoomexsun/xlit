@@ -34,12 +34,12 @@ def run_detailed(
 ) -> None:
     """
     Input: words_bn
-    Output (detailed.txt, detailed.tsv):
+    Output (detailed.txt):
         word_bn\tsyllabified_word_bn\tsyllabified_phonemes\tsyllabified_word_mm
     """
     mt = MTransliteration()
-    words_file, detailed_txt_file, detailed_tsv_file = prepare_files(
-        filename, output_dir, output_files=["detailed.txt", "detailed.tsv"]
+    words_file, detailed_txt_file = prepare_files(
+        filename, output_dir, output_files=["detailed.txt"]
     )
     content: str = words_file.read_text(encoding="utf-8").strip()
     output: str = mt.transliterate_words(
@@ -54,7 +54,6 @@ def run_detailed(
         ]
     )
     detailed_txt_file.write_text(detailed_content, encoding="utf-8")
-    detailed_tsv_file.write_text(detailed_content, encoding="utf-8")
 
 
 # 3. Run wordmap to get wordmaps
@@ -103,7 +102,7 @@ def run_evaluate(
     transcribed_file, transliterated_file, comparison_file, result_file = prepare_files(
         filename or "transcribed.txt",
         output_dir,
-        output_files=["transliterated.txt", "comparison.tsv", "result.txt"],
+        output_files=["transliterated.txt", "comparison.txt", "result.txt"],
         use_root_for_input=use_root,
     )
     # Proposed Model
@@ -145,10 +144,10 @@ def run_evaluate_baseline(
         output_dir,
         output_files=[
             "transliterated.txt",
-            "comparison.tsv",
+            "comparison.txt",
             "result.txt",
             "ext_transliterated.txt",
-            "ext_comparison.tsv",
+            "ext_comparison.txt",
             "ext_result.txt",
         ],
         use_root_for_input=use_root_for_input,
@@ -220,7 +219,7 @@ def save_evaluation(
     )
 
     result_file.write_text(result_content)
-    print(result_content)
+    print(f"\n{result_content}\n")
 
     # Save transliterated file
     transliterated_file.write_text(
@@ -266,6 +265,4 @@ if __name__ == "__main__":
     # run_detailed()
     # run_wordmap()
     run_evaluate()
-
-    # Baseline
-    run_evaluate_baseline()
+    # run_evaluate_baseline()

@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 from .b2m import B2P, P2M
 from ..lon_ import Phoneme, MeeteiMayek, PhonemeInventory, Bengali
@@ -26,22 +26,19 @@ class Spelling:
     def spell(
         self,
         syllabified_word: List[str],
-        include_phonemes: bool = False,
-    ) -> str:
-        mm_syllables = []
-        mm_phonemes = []
+    ) -> Tuple[List[str], List[str]]:
+        mm_syllables: List[str] = []
+        mm_phonemes: List[str] = []
         for syllable in syllabified_word:
             syllable_phonemes = self.__extract_syllable_phonemes(syllable)
-
-            mm_phonemes.append(".".join(syllable_phonemes))
-            mm_syllable = self.__run(syllable_phonemes) if syllable_phonemes else ""
+            mm_syllable = (
+                self.__fix_post_spelling(self.__run(syllable_phonemes))
+                if syllable_phonemes
+                else ""
+            )
             mm_syllables.append(mm_syllable)
-
-        syllable_mm = "/".join(mm_phonemes)
-        word_mm = "/".join(mm_syllables) if include_phonemes else "".join(mm_syllables)
-
-        self.__fix_post_spelling(word_mm)
-        return word_mm if not include_phonemes else f"{syllable_mm}\t{word_mm}"
+            mm_phonemes.append(".".join(syllable_phonemes))
+        return mm_syllables, mm_phonemes
 
     def __extract_syllable_phonemes(self, syllable: str) -> List[str]:
         # 1. Phoneme Mapping
@@ -57,7 +54,15 @@ class Spelling:
         if (
             len(syllable_phonemes) == 1
             and syllable_phonemes[0] in self.pi.phoneme_set_C
-        ) or (
+        ):
+            syllable_phonemes.append(Phoneme.x.value)
+        elif (
+            len(syllable_phonemes) == 2
+            and syllable_phonemes[0] in self.pi.phoneme_set_C
+            and syllable_phonemes[1] in self.pi.phoneme_set_C
+        ):
+            syllable_phonemes.insert(1, Phoneme.x.value)
+        elif (
             len(syllable_phonemes) == 3
             and syllable_phonemes[0] in self.pi.phoneme_set_C
             and syllable_phonemes[1] == self.virama
@@ -65,12 +70,10 @@ class Spelling:
         ):
             syllable_phonemes.append(Phoneme.x.value)
         elif (
-            (
-                len(syllable_phonemes) == 2
-                or (len(syllable_phonemes) == 3 and syllable_phonemes[2] == self.virama)
-            )
+            len(syllable_phonemes) == 3
             and syllable_phonemes[0] in self.pi.phoneme_set_C
             and syllable_phonemes[1] in self.pi.phoneme_set_C
+            and syllable_phonemes[2] == self.virama
         ):
             syllable_phonemes.insert(1, Phoneme.x.value)
 

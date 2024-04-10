@@ -35,8 +35,8 @@ def run_detailed(
     Output (detailed.txt, detailed.tsv): word_s550\tstepwise_text\tword_bn
     """
     gc = GlyphCorrection()
-    words_file, detailed_txt_file, detailed_tsv_file = prepare_files(
-        filename, output_dir, output_files=["detailed.txt", "detailed.tsv"]
+    words_file, detailed_txt_file = prepare_files(
+        filename, output_dir, output_files=["detailed.txt"]
     )
     content: str = words_file.read_text(encoding="utf-8").strip()
     output: str = gc.correct_words(content, include_steps=True)
@@ -49,7 +49,6 @@ def run_detailed(
         ]
     )
     detailed_txt_file.write_text(detailed_content, encoding="utf-8")
-    detailed_tsv_file.write_text(detailed_content, encoding="utf-8")
 
 
 # 3. Run wordmap to get wordmaps
