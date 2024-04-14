@@ -821,5 +821,6 @@ class Bengali(Alphabet):
         }
 
         self.incomplete_chars_set: Set[str] = {
-            self.sign_nukta, self.mark_au,
+            self.sign_nukta,
+            self.mark_au,
         }

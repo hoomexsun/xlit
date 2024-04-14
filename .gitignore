@@ -36,7 +36,6 @@ extras*
 
 # Specific to data
 data/*/*/*.txt
-data/*/*/*.tsv
 
 # Specific to examples/gc_
 examples/gc_/detailed.txt
@@ -45,7 +44,9 @@ examples/gc_/output.txt
 examples/gc_/raw_eval.txt
 examples/gc_/uniq_words_bn.swap.txt
 examples/gc_/uniq_words_bn.txt
+examples/gc_/wordmap.swap.txt
 examples/gc_/wordmap.txt
+examples/gc_/words.swap.txt
 
 # Specific to examples/mt_
 examples/mt_/comparison.txt
@@ -54,3 +55,9 @@ examples/mt_/output.txt
 examples/mt_/transliterated.txt
 examples/mt_/uniq_words_mm.txt
 examples/mt_/wordmap.txt
+
+# Specific to examples/mt_base_
+examples/mt_base_/comparison.txt
+examples/mt_base_/transliterated.txt
+examples/mt_base_/ext_comparison.txt
+examples/mt_base_/ext_transliterated.txt

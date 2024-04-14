@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List
 
 import matplotlib.pyplot as plt
 
@@ -11,20 +11,27 @@ def main(
     run_eval: bool = False,
     run_plot: bool = False,
 ):
-    data_dict: Dict[str, str] = {
-        "News-Indigenous": "data/news_ind/transcribed.txt",
-        "News-Exotic": "data/news_exo/transcribed.txt",
-        "EM-corpus": "data/em/transcribed.txt",
-        "IndicTTS": "data/indic/transcribed.txt",
+    data_subdir_dict: Dict[str, str] = {
+        "News": "data/news",
+        "News-Indigenous": "data/news_ind",
+        "News-Exotic": "data/news_exo",
+        "EM-corpus": "data/em",
+        "IndicTTS": "data/indic",
+    }
+    result_files_dict: Dict[str, str] = {
+        "Baseline": "mt_base_/result.txt",
+        "Baseline2": "mt_base_/ext_result.txt",
+        "Proposed": "mt_/result.txt",
     }
     if run_eval:
-        evaluate(data_dict)
+        evaluate(data_subdir_dict)
     if run_plot:
-        plot(data_dict)
+        plot(data_subdir_dict, result_files_dict)
 
 
-def evaluate(data_dict: Dict[str, str]):
-    for data_type, transcribed_file in data_dict.items():
+def evaluate(data_subdir_dict: Dict[str, str]):
+    for data_type, transcribed_file in data_subdir_dict.items():
+        transcribed_file = Path(transcribed_file) / "transcribed.txt"
         print(f"Evaluating with {data_type}:")
         output_dir = Path(transcribed_file).parent / "mt_"
         os.makedirs(output_dir, exist_ok=True)
@@ -36,31 +43,20 @@ def evaluate(data_dict: Dict[str, str]):
         run_evaluate_baseline(transcribed_file, output_dir, False)
 
 
-def plot(data_dict: Dict[str, str]):
+def plot(data_subdir_dict: Dict[str, str], result_files: Dict[str, str]):
     metrics = ["WER", "CER"]
     fig, axs = plt.subplots(1, 2, figsize=(12, 6))
-
     for idx, metric in enumerate(metrics):
-        data_points = {data_type: [] for data_type in data_dict}
-
-        for data_type, transcribed_file in data_dict.items():
-            parent_dir = Path(transcribed_file).parent
-            result_files = [
-                parent_dir / f"mt_base_/result.txt",
-                parent_dir / f"mt_base_/ext_result.txt",
-                parent_dir / f"mt_/result.txt",
-            ]
-
-            wer_values = []
-            cer_values = []
-
-            for result_file in result_files:
+        data_points = {data_type: [] for data_type in data_subdir_dict}
+        for data_type, transcribed_file in data_subdir_dict.items():
+            wer_values, cer_values = [], []
+            for result_file in result_files.values():
+                result_file = Path(transcribed_file) / result_file
                 result_file_lines = (
                     result_file.read_text(encoding="utf-8").strip().split("\n")
                 )
                 wer_values.append(float(result_file_lines[0]))
                 cer_values.append(float(result_file_lines[1]))
-
             data_points[data_type].extend(wer_values if metric == "WER" else cer_values)
 
         # Plot on the corresponding subplot
@@ -74,21 +70,14 @@ def plot(data_dict: Dict[str, str]):
         ax.legend()
         ax.grid(True)
         ax.set_xticks([0, 1, 2])
-        ax.set_xticklabels(
-            [
-                "Baseline",
-                "Baseline2",
-                "Proposed",
-            ]
-        )
+        ax.set_xticklabels(result_files.keys())
         # ax.set_ylim([0, 100])
 
     plt.savefig(Path("data/graph.png"))
-
     plt.tight_layout()
     plt.show()
 
 
 if __name__ == "__main__":
-    main(False, True)
-    # main(True, True)
+    # main(False, True)
+    main(True, True)
