@@ -5,6 +5,10 @@ from tqdm import tqdm
 
 
 def main():
+    """
+    Fix the transcription here first -> "examples/mt_/transcribed.txt"
+    """
+
     words_indigenous, words_exotic, words_news = get_words_news()
     words_em = Path("data/em/words.txt").read_text(encoding="utf-8").strip().split("\n")
     words_indic = (
@@ -81,10 +85,34 @@ def get_words_news() -> Tuple[List[str], List[str], List[str]]:
     return words_indigenous, words_exotic, words_news
 
 
+def add_rem_words():
+    indic_words = (
+        Path("data/indic/words.txt").read_text(encoding="utf-8").strip().split("\n")
+    )
+    em_words = Path("data/em/words.txt").read_text(encoding="utf-8").strip().split("\n")
+    pre_existing_words = (
+        Path("examples/mt_/words.txt").read_text(encoding="utf-8").strip().split("\n")
+    )
+    remaining_words = set(indic_words).union(set(em_words))
+    all_words = set(pre_existing_words).union(remaining_words)
+
+    Path("examples/mt_/words.txt").write_text(
+        "\n".join(sorted(all_words)), encoding="utf-8"
+    )
+    Path("examples/mt_/rem_words.txt").write_text(
+        "\n".join(sorted(remaining_words)), encoding="utf-8"
+    )
+
+
+def build_rem_pre_transcription():
+    pass
+
+
 def add_rem_transcription():
     pass
 
 
 if __name__ == "__main__":
     main()
+    add_rem_words()
     # add_rem_transcription()

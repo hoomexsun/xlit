@@ -4,8 +4,9 @@ from typing import Callable, List, Tuple, Union
 import enchant
 from tqdm import tqdm
 
-from src.mt_ import MTransliteration
 from src.mt_base_ import Baseline, BaselineExtended
+from src.mt_tu_ import BaselineTU
+from src.mt_ import MTransliteration
 from utils import save_wordmap
 
 
@@ -172,6 +173,43 @@ def run_evaluate_baseline(
         transliterated_file=ext_transliterated_file,
         comparison_file=ext_comparison_file,
         result_file=ext_result_file,
+    )
+
+
+# 6. Run evaluate using TU based Baseline Transliteration
+def run_evaluate_tu(
+    filename: Union[str, Path] = "",
+    output_dir: Union[str, Path] = "",
+    use_root_for_input: bool = True,
+) -> None:
+    """
+    Input (transcribed.txt): words_bn\twords_mm
+    Output:
+        1. transliterated.txt:
+        2. comparison.txt:
+        3. result.txt:
+    """
+    baseline = BaselineTU()
+    transcribed_file, transliterated_file, comparison_file, result_file = prepare_files(
+        filename or "transcribed.txt",
+        output_dir,
+        output_files=[
+            "transliterated.txt",
+            "comparison.txt",
+            "result.txt",
+        ],
+        use_root_for_input=use_root_for_input,
+        default_root_dir="examples/mt_tu_",
+    )
+
+    # Baseline
+    save_evaluation(
+        model_name="TU-based",
+        transliteration_func=baseline.transliterate,
+        transcribed_file=transcribed_file,
+        transliterated_file=transliterated_file,
+        comparison_file=comparison_file,
+        result_file=result_file,
     )
 
 

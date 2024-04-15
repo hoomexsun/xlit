@@ -1,10 +1,10 @@
 import os
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict
 
 import matplotlib.pyplot as plt
 
-from main_mt import run_evaluate, run_evaluate_baseline
+from main_mt import run_evaluate, run_evaluate_baseline, run_evaluate_tu
 
 
 def main(
@@ -19,8 +19,9 @@ def main(
         "IndicTTS": "data/indic",
     }
     result_files_dict: Dict[str, str] = {
-        "Baseline": "mt_base_/result.txt",
-        "Baseline2": "mt_base_/ext_result.txt",
+        "Grapheme-based": "mt_base_/result.txt",
+        "Grapheme-based 2": "mt_base_/ext_result.txt",
+        "TU-based": "mt_tu_/result.txt",
         "Proposed": "mt_/result.txt",
     }
     if run_eval:
@@ -33,14 +34,22 @@ def evaluate(data_subdir_dict: Dict[str, str]):
     for data_type, transcribed_file in data_subdir_dict.items():
         transcribed_file = Path(transcribed_file) / "transcribed.txt"
         print(f"Evaluating with {data_type}:")
+
+        # Grapheme based models
+        output_dir = Path(transcribed_file).parent / "mt_base_"
+        os.makedirs(output_dir, exist_ok=True)
+        print(f"\nModel: Grapheme-based | Location: {output_dir.as_posix()}\n")
+        run_evaluate_baseline(transcribed_file, output_dir, False)
+        # TU based model
+        output_dir = Path(transcribed_file).parent / "mt_tu_"
+        os.makedirs(output_dir, exist_ok=True)
+        print(f"\nModel: TU-based | Location: {output_dir.as_posix()}\n")
+        run_evaluate_tu(transcribed_file, output_dir, False)
+        # Proposed model
         output_dir = Path(transcribed_file).parent / "mt_"
         os.makedirs(output_dir, exist_ok=True)
         print(f"\nModel: Proposed | Location: {output_dir.as_posix()}\n")
         run_evaluate(transcribed_file, output_dir, False)
-        output_dir = Path(transcribed_file).parent / "mt_base_"
-        os.makedirs(output_dir, exist_ok=True)
-        print(f"\nModel: Baseline | Location: {output_dir.as_posix()}\n")
-        run_evaluate_baseline(transcribed_file, output_dir, False)
 
 
 def plot(data_subdir_dict: Dict[str, str], result_files: Dict[str, str]):
