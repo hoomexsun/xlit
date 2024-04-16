@@ -4,7 +4,10 @@ from typing import List, Tuple, Union
 from tqdm import tqdm
 
 from src.gc_ import GlyphCorrection
-from utils import save_wordmap
+from utils import prepare_files, save_wordmap
+
+
+GC_DEFAULT_ROOT_DIR = "examples/gc_"
 
 
 # 1. Run simple
@@ -18,7 +21,8 @@ def run_simple(
     """
     gc = GlyphCorrection()
     data_file, output_file = prepare_files(
-        filename, output_dir, output_files=["output.txt"]
+        filename, output_dir, output_files=["output.txt"], 
+        default_root_dir=GC_DEFAULT_ROOT_DIR,
     )
     content: str = data_file.read_text(encoding="utf-8").strip()
     output: str = gc.correct_words(content)
@@ -36,7 +40,8 @@ def run_detailed(
     """
     gc = GlyphCorrection()
     words_file, detailed_txt_file = prepare_files(
-        filename, output_dir, output_files=["detailed.txt"]
+        filename, output_dir, output_files=["detailed.txt"], 
+        default_root_dir=GC_DEFAULT_ROOT_DIR,
     )
     content: str = words_file.read_text(encoding="utf-8").strip()
     output: str = gc.correct_words(content, include_steps=True)
@@ -66,7 +71,8 @@ def run_wordmap(
     """
     gc = GlyphCorrection()
     data_file, uniq_words_bn_file, wordmap_file = prepare_files(
-        filename, output_dir, output_files=["uniq_words_bn.txt", "wordmap"]
+        filename, output_dir, output_files=["uniq_words_bn.txt", "wordmap"], 
+        default_root_dir=GC_DEFAULT_ROOT_DIR,
     )
     content: str = data_file.read_text(encoding="utf-8").strip()
     output: str = gc.correct_words(content)
@@ -98,7 +104,8 @@ def evaluate(
         filename or "eval.txt",
         output_dir,
         output_files=["result.txt"],
-        use_root=True,
+        use_root_for_input=True, 
+        default_root_dir=GC_DEFAULT_ROOT_DIR,
     )
     distribution = {
         "1": 0,  # Indigenous
@@ -143,7 +150,8 @@ def prepare_eval(
         filename or "wordmap.txt",
         output_dir,
         output_files=["raw_eval.txt"],
-        use_root=True,
+        use_root_for_input=True, 
+        default_root_dir=GC_DEFAULT_ROOT_DIR,
     )
     wordmap_content = wordmap_file.read_text(encoding="utf-8").strip()
     new_content = ""
@@ -151,6 +159,7 @@ def prepare_eval(
         _, word_bn = word_pair.split("\t")
         new_content += f"{word_pair}\t{len(word_bn)}\t0\t{word_bn}\n"
     raw_eval_file.write_text(new_content.strip(), encoding="utf-8")
+
 
 #! Warning: This might overwrite lots of existing files.
 def prepare_swap(
@@ -161,7 +170,8 @@ def prepare_swap(
         filename or "eval.txt",
         output_dir,
         output_files=["words.swap.txt", "uniq_words_bn.swap.txt", "wordmap.swap.txt", "fix_wordmap"],
-        use_root=True,
+        use_root_for_input=True, 
+        default_root_dir=GC_DEFAULT_ROOT_DIR,
     )
     eval_content = (
         eval_file.read_text(encoding="utf-8").strip()
@@ -186,26 +196,6 @@ def prepare_swap(
     )
     save_wordmap(wordmap=all_wordmap_ori, wordmap_file=wordmap_swap_file)
     save_wordmap(wordmap=all_wordmap_fix, wordmap_file=fix_wordmap_file)
-
-
-# 0. Preparing default files for Glyph Correction
-def prepare_files(
-    filename: Union[str, Path],
-    output_dir: Union[str, Path],
-    output_files: List[Union[str, Path]],
-    use_root: bool = False,
-) -> Tuple[Path]:
-    root_dir = Path("examples/gc_")
-    filename = filename if not use_root else root_dir / filename
-    data_file = root_dir / "words.txt" if not filename else Path(filename)
-    output_files = [
-        root_dir / file if not output_dir else Path(output_dir) / file
-        for file in output_files
-    ]
-
-    all_files = [data_file] + output_files
-    # print(f"{tuple(all_files)=}")
-    return tuple(all_files)
 
 
 if __name__ == "__main__":

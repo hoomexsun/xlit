@@ -1,7 +1,7 @@
 import csv
 import json
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List, Tuple, Union
 
 
 def save_wordmap(wordmap: Dict[str, str], wordmap_file: str | Path):
@@ -23,3 +23,25 @@ def save_wordmap(wordmap: Dict[str, str], wordmap_file: str | Path):
         writer.writeheader()
         for word1, word2 in wordmap.items():
             writer.writerow({"lang1": word1, "lang2": word2})
+
+
+# 0. Preparing default files for Glyph Correction & Machine Transliteration
+# For gc: default_root_dir="examples/gc_"
+# For mt: default_root_dir="examples/mt_"
+def prepare_files(
+    filename: Union[str, Path],
+    output_dir: Union[str, Path],
+    output_files: List[Union[str, Path]],
+    default_root_dir: str,
+    use_root_for_input: bool = False,
+) -> Tuple[Path]:
+    root_dir = Path(default_root_dir)
+    filename = filename if not use_root_for_input else root_dir / filename
+    data_file = root_dir / "words.txt" if not filename else Path(filename)
+    output_files = [
+        root_dir / file if not output_dir else Path(output_dir) / file
+        for file in output_files
+    ]
+
+    all_files = [data_file] + output_files
+    return tuple(all_files)

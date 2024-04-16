@@ -5,9 +5,11 @@ import enchant
 from tqdm import tqdm
 
 from src.mt_base_ import Baseline, BaselineExtended
-from src.mt_tu_ import BaselineTU
 from src.mt_ import MTransliteration
-from utils import save_wordmap
+from utils import prepare_files, save_wordmap
+
+
+MT_DEFAULT_ROOT_DIR = "examples/mt_"
 
 
 # 1. Run simple
@@ -21,7 +23,10 @@ def run_simple(
     """
     mt = MTransliteration()
     data_file, output_file = prepare_files(
-        filename, output_dir, output_files=["output.txt"]
+        filename,
+        output_dir,
+        output_files=["output.txt"],
+        default_root_dir=MT_DEFAULT_ROOT_DIR,
     )
     content: str = data_file.read_text(encoding="utf-8").strip()
     output: str = mt.transliterate_words(content)
@@ -40,7 +45,10 @@ def run_detailed(
     """
     mt = MTransliteration()
     words_file, detailed_txt_file = prepare_files(
-        filename, output_dir, output_files=["detailed.txt"]
+        filename,
+        output_dir,
+        output_files=["detailed.txt"],
+        default_root_dir=MT_DEFAULT_ROOT_DIR,
     )
     content: str = words_file.read_text(encoding="utf-8").strip()
     output: str = mt.transliterate_words(
@@ -72,7 +80,10 @@ def run_wordmap(
     """
     mt = MTransliteration()
     data_file, uniq_words_mm_file, wordmap_file = prepare_files(
-        filename, output_dir, output_files=["uniq_words_mm.txt", "wordmap"]
+        filename,
+        output_dir,
+        output_files=["uniq_words_mm.txt", "wordmap"],
+        default_root_dir=MT_DEFAULT_ROOT_DIR,
     )
     content: str = data_file.read_text(encoding="utf-8").strip()
 
@@ -105,6 +116,7 @@ def run_evaluate(
         output_dir,
         output_files=["transliterated.txt", "comparison.txt", "result.txt"],
         use_root_for_input=use_root,
+        default_root_dir=MT_DEFAULT_ROOT_DIR,
     )
     # Proposed Model
     save_evaluation(
@@ -176,43 +188,6 @@ def run_evaluate_baseline(
     )
 
 
-# 6. Run evaluate using TU based Baseline Transliteration
-def run_evaluate_tu(
-    filename: Union[str, Path] = "",
-    output_dir: Union[str, Path] = "",
-    use_root_for_input: bool = True,
-) -> None:
-    """
-    Input (transcribed.txt): words_bn\twords_mm
-    Output:
-        1. transliterated.txt:
-        2. comparison.txt:
-        3. result.txt:
-    """
-    baseline = BaselineTU()
-    transcribed_file, transliterated_file, comparison_file, result_file = prepare_files(
-        filename or "transcribed.txt",
-        output_dir,
-        output_files=[
-            "transliterated.txt",
-            "comparison.txt",
-            "result.txt",
-        ],
-        use_root_for_input=use_root_for_input,
-        default_root_dir="examples/mt_tu_",
-    )
-
-    # Baseline
-    save_evaluation(
-        model_name="TU-based",
-        transliteration_func=baseline.transliterate,
-        transcribed_file=transcribed_file,
-        transliterated_file=transliterated_file,
-        comparison_file=comparison_file,
-        result_file=result_file,
-    )
-
-
 # CER -> normalize Levenshtein distance to [0, 1]
 # d(a,b) / max(len(a), len(b))
 def save_evaluation(
@@ -277,30 +252,9 @@ def save_evaluation(
     )
 
 
-# 0. Preparing default files for Machine Transliteration
-def prepare_files(
-    filename: Union[str, Path],
-    output_dir: Union[str, Path],
-    output_files: List[Union[str, Path]],
-    use_root_for_input: bool = False,
-    default_root_dir: str = "examples/mt_",
-) -> Tuple[Path]:
-    root_dir = Path(default_root_dir)
-    filename = filename if not use_root_for_input else root_dir / filename
-    data_file = root_dir / "words.txt" if not filename else Path(filename)
-    output_files = [
-        root_dir / file if not output_dir else Path(output_dir) / file
-        for file in output_files
-    ]
-
-    all_files = [data_file] + output_files
-    # print(f"{tuple(all_files)=}")
-    return tuple(all_files)
-
-
 if __name__ == "__main__":
-    run_simple()
+    # run_simple()
     run_detailed()
-    run_wordmap()
-    run_evaluate()
-    run_evaluate_baseline()
+    # run_wordmap()
+    # run_evaluate()
+    # run_evaluate_baseline()

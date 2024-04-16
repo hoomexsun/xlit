@@ -19,9 +19,8 @@ def main(
         "IndicTTS": "data/indic",
     }
     result_files_dict: Dict[str, str] = {
-        "Grapheme-based": "mt_base_/result.txt",
-        "Grapheme-based 2": "mt_base_/ext_result.txt",
-        "TU-based": "mt_tu_/result.txt",
+        "Baseline 1": "mt_base_/result.txt",
+        "Baseline 2": "mt_base_/ext_result.txt",
         "Proposed": "mt_/result.txt",
     }
     if run_eval:
@@ -35,16 +34,11 @@ def evaluate(data_subdir_dict: Dict[str, str]):
         transcribed_file = Path(transcribed_file) / "transcribed.txt"
         print(f"Evaluating with {data_type}:")
 
-        # Grapheme based models
+        # Grapheme based Baseline models
         output_dir = Path(transcribed_file).parent / "mt_base_"
         os.makedirs(output_dir, exist_ok=True)
         print(f"\nModel: Grapheme-based | Location: {output_dir.as_posix()}\n")
         run_evaluate_baseline(transcribed_file, output_dir, False)
-        # TU based model
-        output_dir = Path(transcribed_file).parent / "mt_tu_"
-        os.makedirs(output_dir, exist_ok=True)
-        print(f"\nModel: TU-based | Location: {output_dir.as_posix()}\n")
-        run_evaluate_tu(transcribed_file, output_dir, False)
         # Proposed model
         output_dir = Path(transcribed_file).parent / "mt_"
         os.makedirs(output_dir, exist_ok=True)
@@ -88,5 +82,5 @@ def plot(data_subdir_dict: Dict[str, str], result_files: Dict[str, str]):
 
 
 if __name__ == "__main__":
-    # main(False, True)
-    main(True, True)
+    main(False, True)
+    # main(True, True)

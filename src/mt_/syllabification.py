@@ -19,16 +19,16 @@ class Syllabification:
         phoneme_list, char_list = self.__separate_phoneme(text)
 
         # Initialise markers
-        markers = [False] * (len(char_list) - 1)
+        split_points = [False] * (len(char_list) - 1)
 
         # Modify marker to universal features
-        markers = self.__char_based_markers(char_list, markers)
+        split_points = self.__char_based_splitting(char_list, split_points)
         # Modify marker to contextual features
-        markers = self.__phoneme_based_markers(phoneme_list, markers)
+        split_points = self.__phoneme_based_splitting(phoneme_list, split_points)
 
-        syllabified_word = self.__prepare_syllabified_word(char_list, markers)
+        syllabified_word = self.__prepare_syllabified_word(char_list, split_points)
         syllabified_phonemes = self.__prepare_syllabified_word(
-            phoneme_list, markers, sep="."
+            phoneme_list, split_points, sep="."
         )
 
         return syllabified_word, syllabified_phonemes
@@ -59,15 +59,15 @@ class Syllabification:
 
         return phoneme_list, char_list
 
-    def __char_based_markers(
+    def __char_based_splitting(
         self,
         char_list: List[str],
-        markers: List[bool],
+        split_points: List[bool],
     ) -> List[bool]:
         last_idx = len(char_list) - 1
         for idx, char in enumerate(char_list):
             if idx != last_idx and char in self.bn.dependent_consonant_set:
-                markers[idx] = True
+                split_points[idx] = True
             if (
                 idx > 1
                 and char
@@ -79,29 +79,29 @@ class Syllabification:
                 and char_list[idx - 1] in self.bn.independent_consonant_set
                 and char_list[idx - 2] != self.bn_virama
             ):
-                markers[idx - 2] = True
+                split_points[idx - 2] = True
             if idx > 0 and char in self.bn.independent_vowel_set:
-                markers[idx - 1] = True
+                split_points[idx - 1] = True
 
-        return markers
+        return split_points
 
-    def __phoneme_based_markers(
+    def __phoneme_based_splitting(
         self,
         phoneme_list: List[str],
-        markers: List[bool],
+        split_points: List[bool],
     ) -> List[bool]:
         last_idx = len(phoneme_list) - 1
         for idx, phoneme in enumerate(phoneme_list):
             if idx > 0 and idx < last_idx and phoneme == self.bn_virama:
                 if phoneme_list[idx - 1] == phoneme_list[idx + 1]:
-                    markers[idx] = True
+                    split_points[idx] = True
                 if (
                     self.pi.get_MoA(phoneme_list[idx - 1]) == MoA.PLOSIVE
                     and self.pi.get_MoA(phoneme_list[idx + 1]) == MoA.PLOSIVE
                 ):
-                    markers[idx] = True
+                    split_points[idx] = True
 
-        return markers
+        return split_points
 
     def __prepare_syllabified_word(
         self, char_list: List[str], markers: List[bool], sep: str = ""
