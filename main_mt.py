@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Callable, List, Tuple, Union
+from typing import Callable, List, Union
 
 import enchant
 from tqdm import tqdm

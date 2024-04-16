@@ -3,6 +3,8 @@ from typing import Dict, List, Tuple
 
 from tqdm import tqdm
 
+from src.lon_ import MeeteiMayek, Bengali
+
 
 def main():
     """
@@ -112,7 +114,62 @@ def add_rem_transcription():
     pass
 
 
+#! 16/04/2024
+def fix_words_mm():
+    transcribed = Path("temp/words_mm_old.txt").read_text(encoding="utf-8")
+    transcribed = fix(transcribed)
+    Path("temp/words_mm.txt").write_text(transcribed, encoding="utf-8")
+
+
+def fix_words_pre_existing():
+    transcribed = Path("examples/mt_/transcribed.txt").read_text(encoding="utf-8")
+    transcribed = fix(transcribed)
+    Path("examples/mt_/transcribed.txt").write_text(transcribed, encoding="utf-8")
+
+
+def fix(transcribed: str) -> str:
+    mm = MeeteiMayek()
+    bn = Bengali()
+    the_map: Dict[str, str] = {
+        #! Order is important
+        # bn + mm error
+        f"{bn.sign_nukta}{bn.sign_nukta}": f"{bn.sign_nukta}",
+        f"{mm.vowel_inap}{bn.sign_nukta}": f"{bn.sign_nukta}{mm.vowel_inap}",
+        f"{mm.vowel_yenap}{bn.sign_nukta}": f"{bn.sign_nukta}{mm.vowel_yenap}",
+        f"{mm.letter_jil}{bn.sign_nukta}": f"{mm.letter_yang}",
+        f"{mm.letter_dil}{bn.sign_nukta}": f"{mm.letter_rai}",
+        # mm + mm error
+        f"{mm.vowel_anap}{mm.vowel_nung}": f"{mm.vowel_anap}{mm.letter_ngou_lonsum}",
+        f"{mm.vowel_onap}{mm.vowel_nung}": f"{mm.vowel_onap}{mm.letter_ngou_lonsum}",
+        f"{mm.vowel_yenap}{mm.vowel_nung}": f"{mm.vowel_yenap}{mm.letter_ngou_lonsum}",
+        f"{mm.vowel_cheinap}{mm.vowel_nung}": f"{mm.vowel_cheinap}{mm.letter_ngou_lonsum}",
+        f"{mm.vowel_sounap}{mm.vowel_nung}": f"{mm.vowel_sounap}{mm.letter_ngou_lonsum}",
+        f"{mm.vowel_inap}{mm.vowel_nung}": f"{mm.vowel_inap}{mm.letter_ngou_lonsum}",
+        f"{mm.vowel_unap}{mm.vowel_nung}": f"{mm.vowel_unap}{mm.letter_ngou_lonsum}",
+        f"{mm.vowel_yenap}{mm.vowel_anap}": f"{mm.vowel_onap}",
+        # Remove nukta
+        bn.sign_nukta: "",
+    }
+    for key, value in tqdm(the_map.items(), desc="Replacing..."):
+        transcribed = transcribed.replace(key, value)
+    return transcribed
+
+
+def combine_words_bn_mm():
+    words_bn = Path("temp/words_bn.txt").read_text(encoding="utf-8").strip().split("\n")
+    words_mm = Path("temp/words_mm.txt").read_text(encoding="utf-8").strip().split("\n")
+
+    output = "\n".join(
+        [f"{word_bn}\t{word_mm}" for word_bn, word_mm in zip(words_bn, words_mm)]
+    )
+
+    Path("temp/rem_transcribed.txt").write_text(output, encoding="utf-8")
+
+
 if __name__ == "__main__":
-    main()
-    add_rem_words()
+    # main()
+    # add_rem_words()
     # add_rem_transcription()
+    # fix_words_mm()
+    # combine_words_bn_mm()
+    fix_words_pre_existing()
