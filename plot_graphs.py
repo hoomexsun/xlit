@@ -4,7 +4,7 @@ from typing import Dict
 
 import matplotlib.pyplot as plt
 
-from main_mt import run_evaluate, run_evaluate_baseline, run_evaluate_tu
+from main_mt import run_evaluate, run_evaluate_baseline
 
 
 def main(
@@ -12,11 +12,10 @@ def main(
     run_plot: bool = False,
 ):
     data_subdir_dict: Dict[str, str] = {
-        "News": "data/news",
-        "News-Indigenous": "data/news_ind",
-        "News-Exotic": "data/news_exo",
-        "EM-corpus": "data/em",
-        "IndicTTS": "data/indic",
+        "Indigenous words": "data/news_ind",
+        "Exotic words": "data/news_exo",
+        "Corrected Corpus": "data/news",
+        "Existing Corpus": "data/indic",
     }
     result_files_dict: Dict[str, str] = {
         "Baseline 1": "mt_base_/result.txt",
@@ -37,7 +36,7 @@ def evaluate(data_subdir_dict: Dict[str, str]):
         # Grapheme based Baseline models
         output_dir = Path(transcribed_file).parent / "mt_base_"
         os.makedirs(output_dir, exist_ok=True)
-        print(f"\nModel: Grapheme-based | Location: {output_dir.as_posix()}\n")
+        print(f"\nModel: Baselines | Location: {output_dir.as_posix()}\n")
         run_evaluate_baseline(transcribed_file, output_dir, False)
         # Proposed model
         output_dir = Path(transcribed_file).parent / "mt_"
@@ -82,5 +81,5 @@ def plot(data_subdir_dict: Dict[str, str], result_files: Dict[str, str]):
 
 
 if __name__ == "__main__":
-    main(False, True)
-    # main(True, True)
+    # main(False, True)
+    main(True, True)

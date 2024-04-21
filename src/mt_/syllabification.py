@@ -1,63 +1,41 @@
 from typing import Dict, List, Tuple
 
+
 from .b2m import B2P, P2M
+from .conversion import PhonemeConvertor
 from ..lon_ import Bengali, Phoneme, PhonemeInventory, PoA, MoA
 
 
 class Syllabification:
     def __init__(self) -> None:
         self.pi = PhonemeInventory()
+        self.pc = PhonemeConvertor()
         self.b2p = B2P()
         self.bn = Bengali()
         self.bn_virama = self.bn.sign_virama
         self.b2p_charmap: Dict[str, str] = self.b2p.charmap
-        self.b2p_original_map: Dict[str, str] = self.b2p.original_map
+        self.b2p_original_map: Dict[str, str] = self.b2p.p2b_charmap
         self.sorted_keys = sorted(self.b2p_charmap.keys(), key=len, reverse=True)
 
     def syllabify(self, text: str) -> List[str]:
         # Prepare phoneme list and characters list (includes diphthongs)
-        phoneme_list, char_list = self.__separate_phoneme(text)
+        phoneme_seq = self.pc.extract_phoneme_seq(text)
+        char_seq = self.pc.extract_char_seq(text, phoneme_seq)
 
-        # Initialise markers
-        split_points = [False] * (len(char_list) - 1)
+        # Initialise split point to False
+        split_points = [False] * (len(char_seq) - 1)
 
         # Modify marker to universal features
-        split_points = self.__char_based_splitting(char_list, split_points)
+        split_points = self.__char_based_splitting(char_seq, split_points)
         # Modify marker to contextual features
-        split_points = self.__phoneme_based_splitting(phoneme_list, split_points)
+        split_points = self.__phoneme_based_splitting(phoneme_seq, split_points)
 
-        syllabified_word = self.__prepare_syllabified_word(char_list, split_points)
+        syllabified_word = self.__prepare_syllabified_word(char_seq, split_points)
         syllabified_phonemes = self.__prepare_syllabified_word(
-            phoneme_list, split_points, sep="."
+            phoneme_seq, split_points, sep="."
         )
 
         return syllabified_word, syllabified_phonemes
-
-    def __separate_phoneme(self, word: str) -> Tuple[List[str], List[str]]:
-        # 1. Extracting phonemes from word-bn
-        sep = "/"
-        text = f"{sep}{word}{sep}"
-
-        for key in self.sorted_keys:
-            text = text.replace(key, f"{sep}{self.b2p_charmap[key]}{sep}")
-
-        phoneme_list: List[str] = text.replace(sep * 2, sep)[1:-1].split(sep)
-
-        # 2. Segmentation of word-bn according to phonemes
-        char_list: List[str] = []
-        curr_pos = 0
-        for phoneme in phoneme_list:
-            if phoneme not in self.pi.phoneme_set_all:
-                char_list.append(word[curr_pos])
-                curr_pos += 1
-            elif word[curr_pos] in self.b2p_original_map[phoneme]:
-                char_list.append(word[curr_pos])
-                curr_pos += 1
-            elif word[curr_pos : curr_pos + 2] in self.b2p_original_map[phoneme]:
-                char_list.append(word[curr_pos : curr_pos + 2])
-                curr_pos += 2
-
-        return phoneme_list, char_list
 
     def __char_based_splitting(
         self,

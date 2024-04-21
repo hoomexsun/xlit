@@ -9,7 +9,7 @@ class B2P:
     def __init__(self) -> None:
         bn = Bengali()
 
-        original_map: Dict[str, Set[str]] = {
+        p2b_charmap: Dict[str, Set[str]] = {
             Phoneme.k: {bn.letter_ka},
             Phoneme.kh: {bn.letter_kha},
             Phoneme.g: {bn.letter_ga},
@@ -56,14 +56,13 @@ class B2P:
             Phoneme.xu: bn.initial_xu | bn.final_xu,
         }
 
-        self.original_map: Dict[str, str] = {
-            phoneme.value: char_bn_list
-            for phoneme, char_bn_list in original_map.items()
+        self.p2b_charmap: Dict[str, Set[str]] = {
+            phoneme.value: char_bn_list for phoneme, char_bn_list in p2b_charmap.items()
         }
 
         self.charmap: Dict[str, str] = {
             char_bn: phoneme
-            for phoneme, char_bn_list in self.original_map.items()
+            for phoneme, char_bn_list in self.p2b_charmap.items()
             for char_bn in char_bn_list
         }
 
