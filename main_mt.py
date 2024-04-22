@@ -6,10 +6,10 @@ from tqdm import tqdm
 
 from src.mt_base_ import Baseline, BaselineExtended
 from src.mt_ import MTransliteration
-from utils import prepare_files, save_wordmap
+from utils import prepare_files, prepare_mt_transcription, save_wordmap
 
 
-MT_DEFAULT_ROOT_DIR = "examples/mt_"
+MT_DEFAULT_ROOT_DIR = "data/mt_"
 
 
 # 1. Run simple
@@ -114,7 +114,7 @@ def run_evaluate(
     transcribed_file, transliterated_file, comparison_file, result_file = prepare_files(
         filename or "transcribed.txt",
         output_dir,
-        output_files=["transliterated.txt", "comparison.txt", "result.txt"],
+        output_files=["transliterated.txt", "comparison.txt", "result"],
         use_root_for_input=use_root,
         default_root_dir=MT_DEFAULT_ROOT_DIR,
     )
@@ -158,13 +158,13 @@ def run_evaluate_baseline(
         output_files=[
             "transliterated.txt",
             "comparison.txt",
-            "result.txt",
+            "result",
             "ext_transliterated.txt",
             "ext_comparison.txt",
-            "ext_result.txt",
+            "ext_result",
         ],
         use_root_for_input=use_root_for_input,
-        default_root_dir="examples/mt_base_",
+        default_root_dir="data/mt_base_",
     )
 
     # Baseline
@@ -177,9 +177,9 @@ def run_evaluate_baseline(
         result_file=result_file,
     )
 
-    # Baseline Extended
+    # Baseline 2
     save_evaluation(
-        model_name="Baseline Extended",
+        model_name="Baseline 2",
         transliteration_func=baseline_ext.transliterate,
         transcribed_file=transcribed_file,
         transliterated_file=ext_transliterated_file,
@@ -208,14 +208,14 @@ def save_evaluation(
     words = sorted(transcribed_dict.keys())
     transliterated_dict = {
         word_bn: transliteration_func(word_bn)
-        for word_bn in tqdm(words, desc=f"Transliterating using {model_name}")
+        for word_bn in tqdm(words, desc=f"{model_name} Transliteration")
     }
     comparison = []
     M = len(words)  # number of words
     N = 0  # Number of characters
     err = 0  # Total edit distance
     num_mismatch = 0  # Number of words with error
-    for idx, word in enumerate(tqdm(words, desc=f"Evaluating {model_name}")):
+    for idx, word in enumerate(tqdm(words, desc=f"{model_name} Evaluation")):
         target = transcribed_dict.get(word, "")
         output = transliterated_dict.get(word, "")
         if target != output:
@@ -253,6 +253,8 @@ def save_evaluation(
 
 
 if __name__ == "__main__":
+    prepare_mt_transcription()
+    # Main functions
     run_simple()
     run_detailed()
     run_wordmap()

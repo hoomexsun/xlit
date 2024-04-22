@@ -21,46 +21,32 @@ test*
 extras*
 *copy
 
-
-# Store only these
-# examples/gc_/eval.txt
-# examples/gc_/result.txt
-# examples/gc_/words.txt
-# examples/mt_/transcribed.txt
-# examples/mt_/words.txt
-
-
-# Ignore from data & examples to reduce space
+# All these files can be generated from existing py files
+# Ignore the followings to reduce space
 *.csv
 *.json
 
-# Specific to data
-data/*/*/*.txt
+# For data/corpus
+# Store only these
+# data/transcribed.txt
+# Don't delete data/corpus/literature_subset/words.txt
+data/corpus/*/transcribed.txt
+data/corpus/*/*/*.txt
 
-# Specific to examples/gc_
-examples/gc_/detailed.txt
-examples/gc_/fix_wordmap.txt
-examples/gc_/output.txt
-examples/gc_/raw_eval.txt
-examples/gc_/uniq_words_bn.swap.txt
-examples/gc_/uniq_words_bn.txt
-examples/gc_/wordmap.swap.txt
-examples/gc_/wordmap.txt
-examples/gc_/words.swap.txt
+# For data/gc_
+# data/gc_/words.txt
+# data/gc_/eval.txt
+# data/gc_/result
+data/gc_/detailed.txt
+data/gc_/fix_wordmap.txt
+data/gc_/output.txt
+data/gc_/raw_eval.txt
+data/gc_/uniq_words_bn.txt
+data/gc_/wordmap.txt
 
-# Specific to examples/mt_
-examples/mt_/comparison.txt
-examples/mt_/detailed.txt
-examples/mt_/output.txt
-examples/mt_/transliterated.txt
-examples/mt_/uniq_words_mm.txt
-examples/mt_/wordmap.txt
-
-# Specific to examples/mt_base_
-examples/mt_base_/comparison.txt
-examples/mt_base_/transliterated.txt
-examples/mt_base_/ext_comparison.txt
-examples/mt_base_/ext_transliterated.txt
+# For data/mt_ and data/mt_base_
+data/mt_/*.txt
+data/mt_base_/*.txt
 
 # temp
 temp

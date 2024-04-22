@@ -5,35 +5,14 @@ from typing import Dict
 import matplotlib.pyplot as plt
 
 from main_mt import run_evaluate, run_evaluate_baseline
-
-
-def main(
-    run_eval: bool = False,
-    run_plot: bool = False,
-):
-    data_subdir_dict: Dict[str, str] = {
-        "Indigenous words": "data/news_ind",
-        "Exotic words": "data/news_exo",
-        "News Corpus": "data/news",
-        "Story Corpus": "data/story",
-    }
-    result_files_dict: Dict[str, str] = {
-        "Baseline 1": "mt_base_/result.txt",
-        "Baseline 2": "mt_base_/ext_result.txt",
-        "Proposed": "mt_/result.txt",
-    }
-    if run_eval:
-        evaluate(data_subdir_dict)
-    if run_plot:
-        plot(data_subdir_dict, result_files_dict)
+from utils import prepare_corpus_transcription
 
 
 def evaluate(data_subdir_dict: Dict[str, str]):
     for data_type, transcribed_file in data_subdir_dict.items():
         transcribed_file = Path(transcribed_file) / "transcribed.txt"
-        print(f"Evaluating with {data_type}:")
-
-        # Grapheme based Baseline models
+        print(f"Data type: {data_type}:")
+        # Baseline models
         output_dir = Path(transcribed_file).parent / "mt_base_"
         os.makedirs(output_dir, exist_ok=True)
         print(f"\nModel: Baselines | Location: {output_dir.as_posix()}\n")
@@ -75,11 +54,23 @@ def plot(data_subdir_dict: Dict[str, str], result_files: Dict[str, str]):
         ax.set_xticklabels(result_files.keys())
         # ax.set_ylim([0, 100])
 
-    plt.savefig(Path("data/graph.png"))
+    plt.savefig(Path("data/corpus/graph.png"))
     plt.tight_layout()
     plt.show()
 
 
 if __name__ == "__main__":
-    # main(False, True)
-    main(True, True)
+    data_subdir_dict: Dict[str, str] = {
+        "Indigenous words": "data/corpus/indigenous_words",
+        "Exotic words": "data/corpus/exotic_words",
+        "News Corpus": "data/corpus/news_subset",
+        "Literature Corpus": "data/corpus/literature_subset",
+    }
+    result_files_dict: Dict[str, str] = {
+        "Baseline 1": "mt_base_/result",
+        "Baseline 2": "mt_base_/ext_result",
+        "Proposed": "mt_/result",
+    }
+    prepare_corpus_transcription()
+    evaluate(data_subdir_dict)
+    plot(data_subdir_dict, result_files_dict)

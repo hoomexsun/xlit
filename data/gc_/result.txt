@@ -1,0 +1,5 @@
+0.02
+0.01
+Word Level Accuracy=(1-num_mismatch/M)*100=99.98% | num_mismatch=12 | M=49918
+Character Level Accuracy=(1-err/N)*100=99.99% | err=23 | N=393051
+distribution={'1': 947, '2': 160, '3': 304, '4': 304} | Total=1715

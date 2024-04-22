@@ -7,7 +7,7 @@ from src.gc_ import GlyphCorrection
 from utils import prepare_files, save_wordmap
 
 
-GC_DEFAULT_ROOT_DIR = "examples/gc_"
+GC_DEFAULT_ROOT_DIR = "data/gc_"
 
 
 # 1. Run simple
@@ -103,16 +103,10 @@ def evaluate(
     eval_file, result_file = prepare_files(
         filename or "eval.txt",
         output_dir,
-        output_files=["result.txt"],
+        output_files=["result"],
         use_root_for_input=True, 
         default_root_dir=GC_DEFAULT_ROOT_DIR,
     )
-    distribution = {
-        "1": 0,  # Indigenous
-        "2": 0,  # Loan word
-        "3": 0,  # Named Entity
-        "4": 0,  # Mixed (Loan+ind or named+ind)
-    }
     
     M = 0  # number of words
     N = 0  # Number of characters
@@ -120,21 +114,18 @@ def evaluate(
     num_mismatch = 0  # Number of words with error
     eval_content = eval_file.read_text(encoding="utf-8").strip()
     for idx, line in enumerate(tqdm(eval_content.split("\n"), desc="Evaluating")):
-        fields = line.split("\t")
+        _, _, count, edit_distance = line.split("\t")
         # print(f"{idx=} | {line=} | {fields=}")
         M += 1
-        N += int(fields[2])
-        if fields[3] != "0":
+        N += int(count)
+        if edit_distance != "0":
             num_mismatch += 1
-            err += int(fields[3])
-        if len(fields) > 5:
-            distribution[fields[5]] += 1
+            err += int(edit_distance)
 
     result_content: str = (
         f"{(num_mismatch/M)*100:.02f}\n{(err/N)*100:.02f}\n"
         f"Word Level Accuracy={(1-num_mismatch/M)*100=:.02f}% | {num_mismatch=} | {M=}\n"
-        f"Character Level Accuracy={(1-err/N)*100=:.02f}% | {err=} | {N=}"
-        f"{distribution=} | Total={sum(distribution.values())}"
+        f"Character Level Accuracy={(1-err/N)*100=:.02f}% | {err=} | {N=}\n"
     )
     result_file.write_text(result_content)
     print(result_content)
@@ -157,46 +148,8 @@ def prepare_eval(
     new_content = ""
     for word_pair in wordmap_content.split("\n"):
         _, word_bn = word_pair.split("\t")
-        new_content += f"{word_pair}\t{len(word_bn)}\t0\t{word_bn}\n"
+        new_content += f"{word_pair}\t{len(word_bn)}\t0\n"
     raw_eval_file.write_text(new_content.strip(), encoding="utf-8")
-
-
-#! Warning: This might overwrite lots of existing files.
-def prepare_swap(
-    filename: Union[str, Path] = "",
-    output_dir: Union[str, Path] = "",
-)-> None:
-    eval_file, words_swap_file, uniq_words_bn_swap_file, wordmap_swap_file, fix_wordmap_file = prepare_files(
-        filename or "eval.txt",
-        output_dir,
-        output_files=["words.swap.txt", "uniq_words_bn.swap.txt", "wordmap.swap.txt", "fix_wordmap"],
-        use_root_for_input=True, 
-        default_root_dir=GC_DEFAULT_ROOT_DIR,
-    )
-    eval_content = (
-        eval_file.read_text(encoding="utf-8").strip()
-    )
-    all_words = []
-    all_gc_words = []
-    all_gc_words_fix = []
-    all_wordmap_ori = {}
-    all_wordmap_fix = {}
-    for idx, line in enumerate(tqdm(eval_content.split("\n"), desc="Extracting")):
-        fields = line.split("\t")
-        # print(f"{idx=} | {line=} | {fields=}")
-        all_words.append(fields[0])
-        all_gc_words.append(fields[1])
-        all_gc_words_fix.append(fields[4])
-        all_wordmap_ori[fields[0]] = fields[1]
-        all_wordmap_fix[fields[1]] = fields[4]
-
-    words_swap_file.write_text("\n".join(all_words), encoding="utf-8")
-    uniq_words_bn_swap_file.write_text(
-        "\n".join(sorted(set(all_gc_words))), encoding="utf-8"
-    )
-    save_wordmap(wordmap=all_wordmap_ori, wordmap_file=wordmap_swap_file)
-    save_wordmap(wordmap=all_wordmap_fix, wordmap_file=fix_wordmap_file)
-
 
 if __name__ == "__main__":
     """        
@@ -205,13 +158,10 @@ if __name__ == "__main__":
         manually correct & rename file to `eval.txt` ->
         run_evaluate()
     """
-    # run_simple()
-    # run_detailed()
-    # run_wordmap()
+    run_simple()
+    run_detailed()
+    run_wordmap()
     evaluate()
 
     #! Warning: This might overwrite manually modified file. (Rename existing raw_eval.txt).
-    # prepare_eval()
-
-    #! Warning: This might overwrite a lost of existing files.
-    # prepare_swap()
+    prepare_eval()

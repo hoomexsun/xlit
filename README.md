@@ -136,7 +136,7 @@ Check out `gui` built using tkinter on [XLIT GUI](https://github.com/hoomexsun/x
 
 ## 5. Theory
 
-This repository is an implementation of a paper `currently in writing`.
+This repository is an implementation of a paper `currently in writing`. To replicate the paper, run `replicate_paper.py`.
 
 ![whole diagram](./images/block_whole.png)
 
