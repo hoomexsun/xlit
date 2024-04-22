@@ -61,3 +61,7 @@ examples/mt_base_/comparison.txt
 examples/mt_base_/transliterated.txt
 examples/mt_base_/ext_comparison.txt
 examples/mt_base_/ext_transliterated.txt
+
+# temp
+temp
+temp/*

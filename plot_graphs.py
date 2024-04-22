@@ -14,8 +14,8 @@ def main(
     data_subdir_dict: Dict[str, str] = {
         "Indigenous words": "data/news_ind",
         "Exotic words": "data/news_exo",
-        "Corrected Corpus": "data/news",
-        "Existing Corpus": "data/indic",
+        "News Corpus": "data/news",
+        "Story Corpus": "data/story",
     }
     result_files_dict: Dict[str, str] = {
         "Baseline 1": "mt_base_/result.txt",

@@ -8,20 +8,16 @@ from ..lon_ import MeeteiMayek, PhonemeInventory, Bengali
 class Spelling:
 
     def __init__(self) -> None:
-        mm = MeeteiMayek()
         self.pc = PhonemeConvertor()
+        mm = MeeteiMayek()
         self.mm_apun = mm.apun_iyek
         self.ngou_lonsum = mm.letter_ngou_lonsum
         self.nung = mm.vowel_nung
         self.cheitap_vowel_set = mm.cheitap_vowel_set
         bn = Bengali()
         self.virama = bn.sign_virama
-        p2m = P2M()
-        b2p = B2P()
         self.pi = PhonemeInventory()
-        self.b2p_charmap: Dict[str, str] = b2p.charmap
-        self.b2p_original_map: Dict[str, str] = b2p.p2b_charmap
-        self.sorted_keys = sorted(self.b2p_charmap.keys(), key=len, reverse=True)
+        p2m = P2M()
         self.mm_begin: Dict[str, str] = p2m.mm_begin
         self.mm_end: Dict[str, str] = p2m.mm_end
 
@@ -32,38 +28,44 @@ class Spelling:
         mm_syllables: List[str] = []
         mm_phonemes: List[str] = []
         for syllable in syllabified_word:
-
-            syllable_phonemes = self.pc.prepare_syllable_phoneme(
+            phoneme_seq = self.pc.prepare_syllable_phoneme(
                 self.pc.extract_phoneme_seq(syllable)
             )
-
             mm_syllable = (
-                self.__fix_post_spelling(self.spell_syllable(syllable_phonemes))
-                if syllable_phonemes
+                self.__fix_post_spelling(self.spell_syllable(phoneme_seq))
+                if phoneme_seq
                 else ""
             )
             mm_syllables.append(mm_syllable)
-            mm_phonemes.append(".".join(syllable_phonemes))
+            mm_phonemes.append(".".join(phoneme_seq))
         return mm_syllables, mm_phonemes
 
-    def spell_syllable(self, phoneme_list: List[str]) -> str:
-        S = self.mm_begin[phoneme_list[0]]
+    def spell_syllable(self, phoneme_seq: List[str]) -> str:
+        """
+        Apun always inserted for cluster.
+        Format Syllable-final cluster: lonsum+apun+mapum
+
+        Args:
+            phoneme_list (List[str]): Phoneme sequence in Syllable
+
+        Returns:
+            str: spelt syllable in MM
+        """
+        S = self.mm_begin[phoneme_seq[0]]
         # To check whether nucleus is met
-        flag = True if phoneme_list[0] in self.pi.phoneme_set_V else False
-        for idx, phoneme in enumerate(phoneme_list[1:]):
+        flag = True if phoneme_seq[0] in self.pi.phoneme_set_V else False
+        for idx, phoneme in enumerate(phoneme_seq[1:]):
             if phoneme == self.virama:
-                # if idx != len(phoneme_list) - 2:
-                if idx != len(phoneme_list) - 2:
+                if idx != len(phoneme_seq) - 2:  # Exclude virama at last position
                     S += self.mm_apun
-            elif flag:
+            elif flag:  # Next phoneme after Nucleus
                 S += self.mm_end[phoneme]
                 flag = False
-            elif phoneme in self.pi.phoneme_set_C:
+            elif phoneme in self.pi.phoneme_set_C:  # all C except after nucleus
                 S += self.mm_begin[phoneme]
-            else:
+            else:  # V
                 flag = True
                 S += self.mm_end[phoneme]
-
         return S
 
     def __fix_post_spelling(self, word_mm: str):

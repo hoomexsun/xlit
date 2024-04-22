@@ -1,7 +1,6 @@
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
-
-from .b2m import B2P, P2M
+from .b2m import B2P
 from .conversion import PhonemeConvertor
 from ..lon_ import Bengali, Phoneme, PhonemeInventory, PoA, MoA
 
