@@ -120,7 +120,7 @@ def run_evaluate(
     )
     # Proposed Model
     save_evaluation(
-        model_name="Proposed Transliteration",
+        model_name="Proposed",
         transliteration_func=mt.transliterate,
         transcribed_file=transcribed_file,
         transliterated_file=transliterated_file,
@@ -208,7 +208,7 @@ def save_evaluation(
     words = sorted(transcribed_dict.keys())
     transliterated_dict = {
         word_bn: transliteration_func(word_bn)
-        for word_bn in tqdm(words, desc=f"{model_name} Transliteration")
+        for word_bn in tqdm(words, desc=f"Model: {model_name}")
     }
     comparison = []
     M = len(words)  # number of words

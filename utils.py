@@ -65,6 +65,7 @@ def prepare_mt_transcription():
     Path("data/mt_/words.txt").write_text("\n".join(words_bn), encoding="utf-8")
     Path("data/mt_base_/transcribed.txt").write_text(transcribed, encoding="utf-8")
     Path("data/mt_base_/words.txt").write_text("\n".join(words_bn), encoding="utf-8")
+    print(f"Completed transcription\n{len(words_bn)=}")
 
 
 #! Fix the transcription here first -> examples/mt_/transcribed.txt
@@ -87,19 +88,14 @@ def prepare_corpus_transcription():
         Path("data/transcribed.txt").read_text(encoding="utf-8").strip().split("\n")
     )
     words_ind, words_exo = set(), set()
-    for line in original:
+    for idx, line in enumerate(original):
+        # print(f"{idx=} | {line=}")
         word_bn, _, dist_id = line.split("\t")
         dist_id = int(dist_id)
         if dist_id == 1:
             words_ind.add(word_bn)
         elif dist_id > 1:
             words_exo.add(word_bn)
-    # Print details
-    print(
-        f"Details\n{len(original)=}\n"
-        f"{len(words_ind)=} | {len(words_exo)=} | "
-        f"{len(words_news)=} | {len(words_literature)=}"
-    )
 
     words_dict: Dict[int, List[str]] = {
         0: [],  # Indigenous words
@@ -131,6 +127,11 @@ def prepare_corpus_transcription():
     )
     Path("data/corpus/literature_subset/transcribed.txt").write_text(
         "\n".join(words_dict[3]), encoding="utf-8"
+    )
+    print(
+        f"Completed Transcription\n{len(original)=}\n"
+        f"{len(words_ind)=} | {len(words_exo)=}\n"
+        f"{len(words_news)=} | {len(words_literature)=}"
     )
 
 

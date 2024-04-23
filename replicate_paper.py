@@ -11,7 +11,7 @@ from utils import prepare_corpus_transcription
 def evaluate(data_subdir_dict: Dict[str, str]):
     for data_type, transcribed_file in data_subdir_dict.items():
         transcribed_file = Path(transcribed_file) / "transcribed.txt"
-        print(f"Data type: {data_type}:")
+        print(f"Data type: {data_type}")
         # Baseline models
         output_dir = Path(transcribed_file).parent / "mt_base_"
         os.makedirs(output_dir, exist_ok=True)

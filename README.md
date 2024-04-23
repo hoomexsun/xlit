@@ -98,7 +98,6 @@ The following methods are readily available for experimenting:
 | run_evaluate_baseline() | _Evaluation (WER & CER) of a list of parallel Bengali and Meetei Mayek words inside a file using Baseline Transliteration Models._           | -                                                                                                                                                                             |
 | evaluate()              | -                                                                                                                                            | _Evaluation (WER & CER) from a file containing manually calculated edit distance between ground truth and corrected Bengali words. (Also includes distribution of word type)_ |
 | prepare_eval()          | -                                                                                                                                            | _Prepare evaluation file so that we can manually enter minimum edit distance value since it cannot be done programmatically._                                                 |
-| prepare_swap()          | -                                                                                                                                            | _Prepare other files for swapping the original with reference to corrected evaluation file._                                                                                  |
 
 ### 3.1. Script Mode
 
