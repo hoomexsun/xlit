@@ -1,6 +1,6 @@
 from typing import Dict, Set
 
-from ..lon_ import Bengali, MeeteiMayek
+from ..lon_ import BN, MM
 
 
 class Baseline:
@@ -10,97 +10,97 @@ class Baseline:
     """
 
     def __init__(self) -> None:
-        bn = Bengali()
-        mm = MeeteiMayek()
+        bn = BN()
+        mm = MM()
 
         iyek_ipee: Dict[str, Set[str]] = {
-            mm.letter_kok: {bn.letter_ka},
-            mm.letter_sam: {bn.letter_cha, bn.letter_ssa, bn.letter_sa, bn.letter_sha},
-            mm.letter_lai: {bn.letter_la},
-            mm.letter_mit: {bn.letter_ma},
-            mm.letter_pa: {bn.letter_pa},
-            mm.letter_na: {bn.letter_nya, bn.letter_nna, bn.letter_na},
-            mm.letter_chil: {bn.letter_ca},
-            mm.letter_til: {bn.letter_tta, bn.letter_ta, bn.letter_khanda_ta},
-            mm.letter_khou: {bn.letter_kha},
-            mm.letter_ngou: {bn.sign_anusvara, bn.letter_nga},
-            mm.letter_thou: {bn.letter_ttha, bn.letter_tha},
-            mm.letter_wai: {bn.letter_w},
-            mm.letter_yang: {bn.letter_yya, bn.letter_ya},
-            mm.letter_huk: {bn.letter_h},
-            mm.letter_un: {bn.letter_u, bn.letter_uu},
-            mm.letter_i: {bn.letter_i, bn.letter_ii},
-            mm.letter_pham: {bn.letter_pha},
-            mm.letter_atiya: {bn.letter_a},
-            mm.letter_gok: {bn.letter_ga},
-            mm.letter_jham: {bn.letter_jha},
-            mm.letter_rai: {
-                bn.letter_r_vocalic,
-                bn.vowel_r_vocalic,
-                bn.letter_rra,
-                bn.letter_ra,
-                bn.letter_rha,
+            mm.kok: {bn.ka},
+            mm.sam: {bn.cha, bn.ssa, bn.sa, bn.sha},
+            mm.lai: {bn.la},
+            mm.mit: {bn.ma},
+            mm.pa: {bn.pa},
+            mm.na: {bn.nya, bn.nna, bn.na},
+            mm.chil: {bn.ca},
+            mm.til: {bn.tta, bn.ta, bn.khanda_ta},
+            mm.khou: {bn.kha},
+            mm.ngou: {bn.anusvara, bn.nga},
+            mm.thou: {bn.ttha, bn.tha},
+            mm.wai: {bn.w},
+            mm.yang: {bn.yya, bn.ya},
+            mm.huk: {bn.h},
+            mm.un: {bn.u, bn.uu},
+            mm.i: {bn.i, bn.ii},
+            mm.pham: {bn.pha},
+            mm.atiya: {bn.a},
+            mm.gok: {bn.ga},
+            mm.jham: {bn.jha},
+            mm.rai: {
+                bn.r_vocalic,
+                bn.v_r_vocalic,
+                bn.rra,
+                bn.ra,
+                bn.rha,
             },
-            mm.letter_ba: {bn.letter_ba},
-            mm.letter_jil: {bn.letter_ja},
-            mm.letter_dil: {bn.letter_dda, bn.letter_da},
-            mm.letter_ghou: {bn.letter_gha},
-            mm.letter_dhou: {bn.letter_ddha, bn.letter_dha},
-            mm.letter_bham: {bn.letter_bha},
+            mm.ba: {bn.ba},
+            mm.jil: {bn.ja},
+            mm.dil: {bn.dda, bn.da},
+            mm.ghou: {bn.gha},
+            mm.dhou: {bn.ddha, bn.dha},
+            mm.bham: {bn.bha},
         }
 
-        vowel_letters: Dict[str, Set[str]] = {
-            f"{mm.letter_atiya}{mm.vowel_anap}": {bn.letter_aa},
-            f"{mm.letter_atiya}{mm.vowel_yenap}": {bn.letter_e},
-            f"{mm.letter_atiya}{mm.vowel_cheinap}": {bn.letter_ai},
-            f"{mm.letter_atiya}{mm.vowel_onap}": {bn.letter_o},
-            f"{mm.letter_atiya}{mm.vowel_sounap}": {bn.letter_ao},
-            f"{mm.letter_atiya}{mm.vowel_nung}": {f"{bn.letter_aa}{bn.sign_anusvara}"},
+        v_letters: Dict[str, Set[str]] = {
+            f"{mm.atiya}{mm.anap}": {bn.aa},
+            f"{mm.atiya}{mm.yenap}": {bn.e},
+            f"{mm.atiya}{mm.cheinap}": {bn.ai},
+            f"{mm.atiya}{mm.onap}": {bn.o},
+            f"{mm.atiya}{mm.sounap}": {bn.ao},
+            f"{mm.atiya}{mm.nung}": {f"{bn.aa}{bn.anusvara}"},
         }
 
         cheitap_iyek: Dict[str, Set[str]] = {
-            mm.vowel_onap: {bn.vowel_o},
-            mm.vowel_inap: {bn.vowel_i, bn.vowel_ii},
-            mm.vowel_anap: {bn.vowel_aa},
-            mm.vowel_yenap: {bn.vowel_e},
-            mm.vowel_sounap: {bn.vowel_au},
-            mm.vowel_unap: {bn.vowel_u, bn.vowel_uu},
-            mm.vowel_cheinap: {bn.vowel_ai},
-            mm.vowel_nung: {bn.sign_anusvara},
+            mm.onap: {bn.v_o},
+            mm.inap: {bn.v_i, bn.v_ii},
+            mm.anap: {bn.v_aa},
+            mm.yenap: {bn.v_e},
+            mm.sounap: {bn.v_au},
+            mm.unap: {bn.v_u, bn.v_uu},
+            mm.cheinap: {bn.v_ai},
+            mm.nung: {bn.anusvara},
         }
 
         cheising_iyek: Dict[str, Set[str]] = {
-            mm.digit_one: {bn.digit_one},
-            mm.digit_two: {bn.digit_two},
-            mm.digit_three: {bn.digit_three},
-            mm.digit_four: {bn.digit_four},
-            mm.digit_five: {bn.digit_five},
-            mm.digit_six: {bn.digit_six},
-            mm.digit_seven: {bn.digit_seven},
-            mm.digit_eight: {bn.digit_eight},
-            mm.digit_nine: {bn.digit_nine},
-            mm.digit_zero: {bn.digit_zero},
+            mm.one: {bn.one},
+            mm.two: {bn.two},
+            mm.three: {bn.three},
+            mm.four: {bn.four},
+            mm.five: {bn.five},
+            mm.six: {bn.six},
+            mm.seven: {bn.seven},
+            mm.eight: {bn.eight},
+            mm.nine: {bn.nine},
+            mm.zero: {bn.zero},
         }
 
         lonsum_iyek: Dict[str, Set[str]] = {
-            mm.letter_kok_lonsum: {f"{bn.letter_ka}{bn.sign_virama}"},
-            mm.letter_lai_lonsum: {f"{bn.letter_la}{bn.sign_virama}"},
-            mm.letter_mit_lonsum: {f"{bn.letter_ma}{bn.sign_virama}"},
-            mm.letter_pa_lonsum: {f"{bn.letter_pa}{bn.sign_virama}"},
-            mm.letter_na_lonsum: {
-                f"{bn.letter_nna}{bn.sign_virama}",
-                f"{bn.letter_na}{bn.sign_virama}",
+            mm.kok_lonsum: {f"{bn.ka}{bn.virama}"},
+            mm.lai_lonsum: {f"{bn.la}{bn.virama}"},
+            mm.mit_lonsum: {f"{bn.ma}{bn.virama}"},
+            mm.pa_lonsum: {f"{bn.pa}{bn.virama}"},
+            mm.na_lonsum: {
+                f"{bn.nna}{bn.virama}",
+                f"{bn.na}{bn.virama}",
             },
-            mm.letter_til_lonsum: {
-                f"{bn.letter_tta}{bn.sign_virama}",
-                f"{bn.letter_ta}{bn.sign_virama}",
+            mm.til_lonsum: {
+                f"{bn.tta}{bn.virama}",
+                f"{bn.ta}{bn.virama}",
             },
-            mm.letter_ngou_lonsum: {f"{bn.letter_nga}{bn.sign_virama}"},
+            mm.ngou_lonsum: {f"{bn.nga}{bn.virama}"},
         }
 
         self.original_map = {
             **iyek_ipee,
-            **vowel_letters,
+            **v_letters,
             **cheitap_iyek,
             **cheising_iyek,
             **lonsum_iyek,
@@ -127,17 +127,17 @@ class BaselineExtended:
     """
 
     def __init__(self) -> None:
-        bn = Bengali()
-        mm = MeeteiMayek()
+        bn = BN()
+        mm = MM()
         self.baseline = Baseline()
         self.extra_charmap = {
-            f"{bn.sign_virama}{bn.letter_ya}": f"{mm.apun_iyek}{mm.letter_yang}",
-            f"{bn.sign_virama}{bn.letter_yya}": f"{mm.apun_iyek}{mm.letter_yang}",
-            f"{bn.sign_virama}{bn.letter_ra}": f"{mm.apun_iyek}{mm.letter_rai}",
-            f"{bn.sign_virama}{bn.letter_rha}": f"{mm.apun_iyek}{mm.letter_rai}",
-            f"{bn.sign_virama}{bn.letter_rra}": f"{mm.apun_iyek}{mm.letter_rai}",
-            f"{bn.sign_virama}{bn.letter_la}": f"{mm.apun_iyek}{mm.letter_lai}",
-            f"{bn.sign_virama}{bn.letter_w}": f"{mm.apun_iyek}{mm.letter_wai}",
+            f"{bn.virama}{bn.ya}": f"{mm.apun_iyek}{mm.yang}",
+            f"{bn.virama}{bn.yya}": f"{mm.apun_iyek}{mm.yang}",
+            f"{bn.virama}{bn.ra}": f"{mm.apun_iyek}{mm.rai}",
+            f"{bn.virama}{bn.rha}": f"{mm.apun_iyek}{mm.rai}",
+            f"{bn.virama}{bn.rra}": f"{mm.apun_iyek}{mm.rai}",
+            f"{bn.virama}{bn.la}": f"{mm.apun_iyek}{mm.lai}",
+            f"{bn.virama}{bn.w}": f"{mm.apun_iyek}{mm.wai}",
         }
 
     def transliterate(self, word_bn: str):

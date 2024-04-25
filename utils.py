@@ -5,7 +5,7 @@ from typing import Dict, List, Tuple, Union
 
 from tqdm import tqdm
 
-from src.lon_ import Bengali, MeeteiMayek
+from src.lon_ import Cleaner
 
 
 def save_wordmap(wordmap: Dict[str, str], wordmap_file: str | Path):
@@ -137,41 +137,13 @@ def prepare_corpus_transcription():
 
 #! Text Cleaning "data/mt_/transcribed.txt"
 def clean_transcribed() -> None:
+    c = Cleaner()
     transcribed_file: Path = Path("data/mt_/transcribed.txt")
     new_lines = set()
     lines = transcribed_file.read_text(encoding="utf-8").strip().split("\n")
     for line in tqdm(lines, desc="Cleaning..."):
         word_bn, word_mm = line.split("\t")
         cleaned_word_bn = word_bn
-        cleaned_word_mm = clean_mm(word_mm)
+        cleaned_word_mm = c.clean_mm(word_mm)
         new_lines.add(f"{cleaned_word_bn}\t{cleaned_word_mm}")
     transcribed_file.write_text("\n".join(sorted(new_lines)), encoding="utf-8")
-
-
-#! Text Cleaning Meetei Mayek
-def clean_mm(word_mm: str) -> str:
-    mm = MeeteiMayek()
-    bn = Bengali()
-    the_map: Dict[str, str] = {
-        #! Order is important
-        # bn + mm error
-        f"{bn.sign_nukta}{bn.sign_nukta}": f"{bn.sign_nukta}",
-        f"{mm.vowel_inap}{bn.sign_nukta}": f"{bn.sign_nukta}{mm.vowel_inap}",
-        f"{mm.vowel_yenap}{bn.sign_nukta}": f"{bn.sign_nukta}{mm.vowel_yenap}",
-        f"{mm.letter_jil}{bn.sign_nukta}": f"{mm.letter_yang}",
-        f"{mm.letter_dil}{bn.sign_nukta}": f"{mm.letter_rai}",
-        # mm + mm error
-        f"{mm.vowel_anap}{mm.vowel_nung}": f"{mm.vowel_anap}{mm.letter_ngou_lonsum}",
-        f"{mm.vowel_onap}{mm.vowel_nung}": f"{mm.vowel_onap}{mm.letter_ngou_lonsum}",
-        f"{mm.vowel_yenap}{mm.vowel_nung}": f"{mm.vowel_yenap}{mm.letter_ngou_lonsum}",
-        f"{mm.vowel_cheinap}{mm.vowel_nung}": f"{mm.vowel_cheinap}{mm.letter_ngou_lonsum}",
-        f"{mm.vowel_sounap}{mm.vowel_nung}": f"{mm.vowel_sounap}{mm.letter_ngou_lonsum}",
-        f"{mm.vowel_inap}{mm.vowel_nung}": f"{mm.vowel_inap}{mm.letter_ngou_lonsum}",
-        f"{mm.vowel_unap}{mm.vowel_nung}": f"{mm.vowel_unap}{mm.letter_ngou_lonsum}",
-        f"{mm.vowel_yenap}{mm.vowel_anap}": f"{mm.vowel_onap}",
-    }
-    # Fix common error
-    for key, value in the_map.items():
-        word_mm = word_mm.replace(key, value)
-    # Remove words not belonging to MM alphabet
-    return "".join([char for char in word_mm if mm.has_char(char)])

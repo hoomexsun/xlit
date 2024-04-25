@@ -1,6 +1,6 @@
 from tqdm import tqdm
 
-from .b2m import BnErrors
+from ..lon_ import BnErrors
 from .syllabification import Syllabification
 from .spelling import Spelling
 
@@ -17,7 +17,6 @@ class MTransliteration:
     def __init__(self) -> None:
         self.syllabification = Syllabification()
         self.spelling = Spelling()
-        self.bnE = BnErrors()
 
     def transliterate_words(
         self,
@@ -45,9 +44,9 @@ class MTransliteration:
         sep: str = "/",
     ) -> str:
         # 1. Correct spelling first
-        for key, value in self.bnE.charmap.items():
+        for key, value in BnErrors.charmap.items():
             word = word.replace(key, value)
-        word = self.bnE.filter_valid_bengali_letters(word)
+        word = BnErrors.filter_valid_bengali_letters(word)
         # 1.1 Skip other process if strin is empty
         if not word.strip():
             return ""

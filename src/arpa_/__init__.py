@@ -1,5 +1,5 @@
 from typing import Dict, List
-from ..lon_ import Phoneme, ARPABETPhoneme, PhonemeInventory, Bengali, MeeteiMayek
+from ..lon_ import Phoneme, ARPABETPhoneme, PhonemeInventory, BN, MM
 
 
 class ARPA2MM:

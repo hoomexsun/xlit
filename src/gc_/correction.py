@@ -1,15 +1,10 @@
 from typing import Dict, List, Set, Tuple
 
 from .u2b import U2B
-from ..lon_ import Bengali
+from ..lon_ import BN, Cleaner
 
 
 class Correction:
-
-    def __init__(self) -> None:
-        self.bn = Bengali()
-        self.u2b = U2B()
-        self.virama = self.bn.sign_virama
 
     def correct(
         self,
@@ -18,23 +13,26 @@ class Correction:
     ) -> str:
         steps = []
         # Step 0: Adjusting s550 characters
-        text = self.__adjust_glyph(text, charmap=self.u2b.premap)
+        text = self.__adjust_glyph(text, charmap=U2B.premap)
         steps.append(text)
 
         # Step 1: Mapping Bengali Alphabet
-        text = self.__map_unicode(text, charmap=self.u2b.charmap)
+        text = self.__map_unicode(text, charmap=U2B.charmap)
         steps.append(text)
 
         # Step 2: Fix suffix position of r and then mapping
         text = self.__fix_r_glyph(
-            text, chars=self.u2b.s550_extra_chars, charmap=self.u2b.R_char_r
+            text, chars=U2B.s550_extra_chars, charmap=U2B.R_char_r
         )
         steps.append(text)
 
         # Step 3: Fix prefix position of vowels and fix vowels
         text = self.__fix_vowels(
-            text, chars=self.bn.L_vowels, enclosed_vowel_charmap=self.u2b.postmap_vowels
+            text,
+            chars=BN.L_vowels,
         )
+        text = Cleaner.clean_bn(text)
+
         steps.append(text)
 
         # Returns final content
@@ -54,7 +52,7 @@ class Correction:
         # 2. Fix redundant virama
         num_mistypes: int = 2
         for num in range(num_mistypes + 1, 1, -1):
-            text = text.replace(self.virama * num, self.virama)
+            text = text.replace(BN.virama * num, BN.virama)
         return text
 
     def __fix_r_glyph(self, text: str, chars: Set[str], charmap: Dict[str, str]) -> str:
@@ -80,14 +78,11 @@ class Correction:
             text = text.replace(char, replacement)
 
         # 3. Fix redundant virama
-        num_mistypes: int = 2
-        for num in range(num_mistypes + 1, 1, -1):
-            text = text.replace(self.virama * num, self.virama)
+        for num in range(3, 1, -1):
+            text = text.replace(BN.virama * num, BN.virama)
         return text
 
-    def __fix_vowels(
-        self, text: str, chars: Set[str], enclosed_vowel_charmap: Dict[str, str]
-    ) -> str:
+    def __fix_vowels(self, text: str, chars: Set[str]):
         # 1. Fixing Left Vowels' position
         char_list = []
         skip_index = -1
@@ -107,15 +102,12 @@ class Correction:
                 char_list.append(char)
 
         text = "".join(char_list)
-        # 2. Fixing enclosed vowels to correct unicode
-        for char, replacement in enclosed_vowel_charmap.items():
-            text = text.replace(char, replacement)
         return text
 
     def __jump(self, chars: str) -> Tuple[List[str], int]:
         char, *right = chars
         idx = 0
-        while idx < len(right) - 1 and right[idx + 1] == self.virama:
+        while idx < len(right) - 1 and right[idx + 1] == BN.virama:
             idx += 2
         if idx >= len(right):
             return list(chars), 1

@@ -2,19 +2,14 @@ from typing import Dict, List
 
 from .b2m import B2P
 from .conversion import PhonemeConvertor
-from ..lon_ import Bengali, Phoneme, PhonemeInventory, PoA, MoA
+from ..lon_ import BN, Phoneme, PhonemeInventory, PoA, MoA
 
 
 class Syllabification:
     def __init__(self) -> None:
         self.pi = PhonemeInventory()
         self.pc = PhonemeConvertor()
-        self.b2p = B2P()
-        self.bn = Bengali()
-        self.bn_virama = self.bn.sign_virama
-        self.b2p_charmap: Dict[str, str] = self.b2p.charmap
-        self.b2p_original_map: Dict[str, str] = self.b2p.p2b_charmap
-        self.sorted_keys = sorted(self.b2p_charmap.keys(), key=len, reverse=True)
+        self.sorted_keys = sorted(B2P.charmap.keys(), key=len, reverse=True)
 
     def syllabify(self, text: str) -> List[str]:
         # Prepare phoneme list and characters list (includes diphthongs)
@@ -43,21 +38,16 @@ class Syllabification:
     ) -> List[bool]:
         last_idx = len(char_list) - 1
         for idx, char in enumerate(char_list):
-            if idx != last_idx and char in self.bn.dependent_consonant_set:
+            if idx != last_idx and char in BN.fi_set_C:
                 split_points[idx] = True
             if (
                 idx > 1
-                and char
-                in (
-                    self.bn.dependent_consonant_set
-                    | self.bn.dependent_vowel_set
-                    | self.bn.dependent_diphthongs_set
-                )
-                and char_list[idx - 1] in self.bn.independent_consonant_set
-                and char_list[idx - 2] != self.bn_virama
+                and char in (BN.fi_set_C | BN.fi_set_V | BN.fi_diphthong_set)
+                and char_list[idx - 1] in BN.main_set_C
+                and char_list[idx - 2] != BN.virama
             ):
                 split_points[idx - 2] = True
-            if idx > 0 and char in self.bn.independent_vowel_set:
+            if idx > 0 and char in BN.main_set_V:
                 split_points[idx - 1] = True
 
         return split_points
@@ -69,7 +59,7 @@ class Syllabification:
     ) -> List[bool]:
         last_idx = len(phoneme_list) - 1
         for idx, phoneme in enumerate(phoneme_list):
-            if idx > 0 and idx < last_idx and phoneme == self.bn_virama:
+            if idx > 0 and idx < last_idx and phoneme == BN.virama:
                 if phoneme_list[idx - 1] == phoneme_list[idx + 1]:
                     split_points[idx] = True
                 if (

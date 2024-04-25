@@ -10,6 +10,7 @@ from utils import prepare_files, prepare_mt_transcription, save_wordmap
 
 
 MT_DEFAULT_ROOT_DIR = "data/mt_"
+MT_BASE_ROOT_DIR = "data/mt_base_"
 
 
 # 1. Run simple
@@ -164,7 +165,7 @@ def run_evaluate_baseline(
             "ext_result",
         ],
         use_root_for_input=use_root_for_input,
-        default_root_dir="data/mt_base_",
+        default_root_dir=MT_BASE_ROOT_DIR,
     )
 
     # Baseline
