@@ -1,86 +1,72 @@
-from typing import Dict, List
+from typing import List
 
 from .b2m import B2P
-from .conversion import PhonemeConvertor
 from ..lon_ import BN, Phoneme, PhonemeInventory, PoA, MoA
 
 
 class Syllabification:
     def __init__(self) -> None:
         self.pi = PhonemeInventory()
-        self.pc = PhonemeConvertor()
         self.sorted_keys = sorted(B2P.charmap.keys(), key=len, reverse=True)
 
-    def syllabify(self, text: str) -> List[str]:
+    def syllabify_text(self, text: str) -> List[str]:
         # Prepare phoneme list and characters list (includes diphthongs)
         phoneme_seq = self.pc.extract_phoneme_seq(text)
         char_seq = self.pc.extract_char_seq(text, phoneme_seq)
 
+        # Get syllabify
+        return self.get_split_points(char_seq, phoneme_seq)
+
+    def get_split_points(
+        self,
+        char_seq: List[str],
+        phoneme_seq: List[str],
+    ) -> List[bool]:
         # Initialise split point to False
+        # split_points[idx] <- after char
+        # split_points[idx - 1] <- before char and so on
+        last_idx = len(char_seq) - 1
         split_points = [False] * (len(char_seq) - 1)
 
-        # Modify marker to universal features
-        split_points = self.__char_based_splitting(char_seq, split_points)
-        # Modify marker to contextual features
-        split_points = self.__phoneme_based_splitting(phoneme_seq, split_points)
-
-        syllabified_word = self.__prepare_syllabified_word(char_seq, split_points)
-        syllabified_phonemes = self.__prepare_syllabified_word(
-            phoneme_seq, split_points, sep="."
-        )
-
-        return syllabified_word, syllabified_phonemes
-
-    def __char_based_splitting(
-        self,
-        char_list: List[str],
-        split_points: List[bool],
-    ) -> List[bool]:
-        last_idx = len(char_list) - 1
-        for idx, char in enumerate(char_list):
-            if idx != last_idx and char in BN.fi_set_C:
-                split_points[idx] = True
-            if (
-                idx > 1
-                and char in (BN.fi_set_C | BN.fi_set_V | BN.fi_diphthong_set)
-                and char_list[idx - 1] in BN.main_set_C
-                and char_list[idx - 2] != BN.virama
-            ):
-                split_points[idx - 2] = True
-            if idx > 0 and char in BN.main_set_V:
-                split_points[idx - 1] = True
-
-        return split_points
-
-    def __phoneme_based_splitting(
-        self,
-        phoneme_list: List[str],
-        split_points: List[bool],
-    ) -> List[bool]:
-        last_idx = len(phoneme_list) - 1
-        for idx, phoneme in enumerate(phoneme_list):
-            if idx > 0 and idx < last_idx and phoneme == BN.virama:
-                if phoneme_list[idx - 1] == phoneme_list[idx + 1]:
-                    split_points[idx] = True
+        # char based (curr -> idx -> context)
+        for idx, char in enumerate(char_seq):
+            # Independent vowel and diphthongs
+            if char in BN.in_diphthong_set | BN.main_set_V:
+                if idx > 0:
+                    split_points[idx - 1] = True
+            # dependent vowel and diphthongs
+            elif char in BN.fi_set_V | BN.fi_diphthong_set:
                 if (
-                    self.pi.get_MoA(phoneme_list[idx - 1]) == MoA.PLOSIVE
-                    and self.pi.get_MoA(phoneme_list[idx + 1]) == MoA.PLOSIVE
+                    char_seq[idx - 1] in BN.main_set_C
+                    and char_seq[idx - 2] != BN.virama
                 ):
+                    if idx > 1:
+                        split_points[idx - 2] = True
+            # dependent consonants
+            elif char in BN.fi_set_C:
+                if idx != last_idx:
                     split_points[idx] = True
+                if idx > 1:
+                    if (
+                        char_seq[idx - 1] in BN.main_set_C
+                        and char_seq[idx - 2] != BN.virama
+                    ):
+                        split_points[idx - 2] = True
+            # Independent/main consonants
+            else:
+                pass
 
+        # phoneme based (curr -> idx -> context)
+        for idx, phoneme in enumerate(phoneme_seq):
+            if phoneme == BN.virama:
+                if idx > 0 and idx < last_idx:
+                    if phoneme_seq[idx - 1] == phoneme_seq[idx + 1]:  # Same phoneme
+                        split_points[idx] = True
+                    if (
+                        self.pi.get_MoA(phoneme_seq[idx - 1]) == MoA.PLOSIVE
+                        and self.pi.get_MoA(phoneme_seq[idx + 1]) == MoA.PLOSIVE
+                    ):  # Both phoneme are plosive
+                        split_points[idx] = True
+
+        # Return split_points
         return split_points
-
-    def __prepare_syllabified_word(
-        self, char_list: List[str], markers: List[bool], sep: str = ""
-    ) -> List[str]:
-        syllabified_word = []
-        used_idx = 0
-        for idx, marker in enumerate(markers):
-            if marker:
-                syllable = sep.join(char_list[used_idx : idx + 1])
-                syllabified_word.append(syllable)
-                used_idx = idx + 1
-        syllable = sep.join(char_list[used_idx:])
-        syllabified_word.append(syllable)
-
-        return syllabified_word

@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import Dict, Set, Tuple
 
 from ..lon_ import Phoneme, BN, MM
@@ -147,3 +148,27 @@ class P2M:
         mm_begin[phoneme.value] = chars_mm[0]
         mm_end[phoneme.value] = chars_mm[1]
         mm_end_2[phoneme.value] = chars_mm[2]
+
+
+class TUType(Enum):
+    VI = "vowel initial/independent"
+    VF = "vowel final/dependent"
+    DI = "diphthong initial/independent"
+    DF = "diphthong final/dependent"
+    CI = "consonant initial/independent"
+    CF = "consonant final/dependent"
+    PI = "pure consonant initial/independent"
+    PF = "pure consonant final/dependent"
+
+    def get_spell_type(self) -> Tuple[bool, bool]:
+        """Spell map based on TU type
+            spell_type {True: mm_begin, False: mm_end}
+            add_cluster_mark {True: map + apun, False: map}
+
+        Returns:
+            Tuple[bool, bool]: (spell_type, cluster_mark)
+        """
+
+        spell_type = self in [TUType.VI, TUType.DI, TUType.CI, TUType.PI]
+        add_cluster_mark = self in [TUType.PI, TUType.PF]
+        return spell_type, add_cluster_mark
