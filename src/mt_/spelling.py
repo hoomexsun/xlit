@@ -13,11 +13,11 @@ class Spelling:
 
     def spell(
         self,
-        syllabified_word: List[str],
+        sup_chars: List[str],
     ) -> Tuple[List[str], List[str]]:
-        mm_syllables: List[str] = []
-        mm_phonemes: List[str] = []
-        for syllable in syllabified_word:
+        chars_mm: List[str] = []
+        phonemes_mm: List[str] = []
+        for syllable in sup_chars:
             phoneme_seq = self.pc.prepare_syllable_phoneme(
                 self.pc.extract_phoneme_seq(syllable)
             )
@@ -26,9 +26,9 @@ class Spelling:
                 if phoneme_seq
                 else ""
             )
-            mm_syllables.append(mm_syllable)
-            mm_phonemes.append(".".join(phoneme_seq))
-        return mm_syllables, mm_phonemes
+            chars_mm.append(mm_syllable)
+            phonemes_mm.append(".".join(phoneme_seq))
+        return chars_mm, phonemes_mm
 
     def spell_syllable(self, phoneme_seq: List[str]) -> str:
         """

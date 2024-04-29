@@ -52,9 +52,7 @@ def run_detailed(
         default_root_dir=MT_DEFAULT_ROOT_DIR,
     )
     content: str = words_file.read_text(encoding="utf-8").strip()
-    output: str = mt.transliterate_words(
-        content, include_syllabified=True, include_phonemes=True
-    )
+    output: str = mt.transliterate_words(content, show_steps=True)
     detailed_content = "\n".join(
         [
             f"{word_bn}\t{detailed_word_mm}"

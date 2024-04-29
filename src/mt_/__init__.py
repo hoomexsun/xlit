@@ -25,74 +25,60 @@ class MTransliteration:
     def transliterate_words(
         self,
         text: str,
-        include_syllabified: bool = False,
-        include_phonemes: bool = False,
+        show_steps: bool = False,
     ) -> str:
         words = []
         for word in tqdm(text.split(), desc="Transliterating..."):
             # for word in text.split():
-            words.append(
-                self.transliterate(
-                    word=word,
-                    include_syllabified=include_syllabified,
-                    include_phonemes=include_phonemes,
-                )
-            )
+            words.append(self.transliterate(word=word, show_steps=show_steps))
         return "\n".join(words)
 
     def transliterate(
         self,
         word: str,
-        include_syllabified: bool = False,
-        include_phonemes: bool = False,
+        show_steps: bool = False,
         sep: str = "/",
     ) -> str:
-        # 1. Correct spelling first
+        # 0. Correct common BnErrors
         for key, value in BnErrors.charmap.items():
             word = word.replace(key, value)
         word = BnErrors.filter_valid_bengali_letters(word)
-        # 1.1 Skip other process if strin is empty
+        # 0.1 Skip other process if string is empty
         if not word.strip():
             return ""
 
+        # 1. Phoneme Conversion
         # Prepare phoneme list and characters list (includes diphthongs)
         phoneme_seq = self.pc.extract_phoneme_seq(word)
         char_seq = self.pc.extract_char_seq(word, phoneme_seq)
 
-        # 2. Syllabify word_bn and
+        # 2. Syllabification
+        # Get split points
         split_points = self.syllabification.get_split_points(char_seq, phoneme_seq)
 
         sup_chars = self.use_split_points(char_seq, split_points)
         sup_phonemes = self.use_split_points(phoneme_seq, split_points, sep=".")
 
         # 3. Spelling
-        word_mm, intermediate_phoneme = self.spelling.spell(sup_chars)
+        # Get words in mm from the syllables
+        chars_mm, phonemes_mm = self.spelling.spell(sup_chars)
 
         # Prepare result string
         res = ""
-        if include_syllabified:
-            if include_phonemes:
-                res += f"{sep.join(sup_phonemes)}\t"
-            res += f"{sep.join(sup_chars)}\t"
-        if include_phonemes:
-            res += f"{sep.join(intermediate_phoneme)}\t"
-            res += f"{sep.join(word_mm)}\t"
-        word_mm = "".join(word_mm)
-        res += word_mm
+        if show_steps:
+            res += f"{sep.join(sup_chars)}\t{sep.join(sup_phonemes)}\t{sep.join(phonemes_mm)}\t"
+        res += "".join(chars_mm)
 
         return res
 
     def use_split_points(
         self, char_list: List[str], split_points: List[bool], sep: str = ""
     ) -> List[str]:
-        syllabified_word = []
+        seq = []
         used_idx = 0
-        for idx, marker in enumerate(split_points):
-            if marker:
-                syllable = sep.join(char_list[used_idx : idx + 1])
-                syllabified_word.append(syllable)
+        for idx, split_point in enumerate(split_points):
+            if split_point:
+                seq.append(sep.join(char_list[used_idx : idx + 1]))
                 used_idx = idx + 1
-        syllable = sep.join(char_list[used_idx:])
-        syllabified_word.append(syllable)
-
-        return syllabified_word
+        seq.append(sep.join(char_list[used_idx:]))
+        return seq
