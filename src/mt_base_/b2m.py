@@ -1,6 +1,6 @@
 from typing import Dict, Set
 
-from ..lon_ import BN, MM
+from ..lon_ import BN, MM, Cleaner
 
 
 class Baseline:
@@ -148,4 +148,7 @@ class BaselineExtended:
         # Then implement the baseline
         for key in self.baseline.sorted_keys:
             word_mm = word_mm.replace(key, self.baseline.charmap[key])
+
+        word_mm = Cleaner.clean_mm(word_mm)
+        word_mm = Cleaner.replace_spell_mm(word_mm)
         return word_mm

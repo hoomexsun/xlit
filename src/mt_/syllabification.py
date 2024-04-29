@@ -48,17 +48,28 @@ class Syllabification:
                 pass
 
         # phoneme based (curr -> idx -> context)
+        # Find invalid clusters and split them
         for idx, phoneme in enumerate(phoneme_seq):
             if phoneme == BN.virama:
                 if idx > 0 and idx < last_idx:
-                    if phoneme_seq[idx - 1] == phoneme_seq[idx + 1]:  # Same phoneme
+                    # Same phoneme
+                    if phoneme_seq[idx - 1] == phoneme_seq[idx + 1]:
                         split_points[idx] = True
+                    # plosive + plosive
                     if (
                         self.pi.get_MoA(phoneme_seq[idx - 1]) == MoA.PLOSIVE
                         and self.pi.get_MoA(phoneme_seq[idx + 1]) == MoA.PLOSIVE
-                    ):  # Both phoneme are plosive
+                    ):
                         split_points[idx] = True
+                    # plosive + nasal
+                    if (
+                        self.pi.get_MoA(phoneme_seq[idx - 1]) == MoA.PLOSIVE
+                        and self.pi.get_MoA(phoneme_seq[idx + 1]) == MoA.NASAL
+                    ):
+                        split_points[idx] = True
+                    # dip in ssp and next phoneme is raised coz of vowel
 
+        # if consonant + virama at end, then join consonant with previous valid vowel to form syllable
         # Forced addition of split point when more than 2 C exist between two consescutive split points
         split_indices = [
             idx for idx, split_point in enumerate(split_points) if split_point

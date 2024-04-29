@@ -57,7 +57,7 @@ class PhonemeConvertor:
         # Return character sequence
         return char_seq
 
-    def prepare_syllable_phoneme(self, phoneme_seq: List[str]) -> List[str]:
+    def prepare_syllable_phoneme(self, syllable: str) -> List[str]:
         """Prepare Syllable phonemes for spelling module
 
         Args:
@@ -66,16 +66,19 @@ class PhonemeConvertor:
         Returns:
             List[str]: modified phoneme sequence
         """
+        phoneme_seq = self.extract_phoneme_seq(syllable)
         new_phoneme_seq: List[str] = []
         last_idx = len(phoneme_seq) - 1
-        # 1. Add schwa wherver necessary
+        # 1. Add schwa wherever necessary
         for idx, phoneme in enumerate(phoneme_seq):
             if phoneme not in self.phoneme_set_C:  # C'
                 new_phoneme_seq.append(phoneme)
+            # phoneme is C
             elif last_idx == 0:  # [C]
                 # C -> C + schwa
                 new_phoneme_seq.append(phoneme)
                 new_phoneme_seq.append(Phoneme.x.value)
+            # len > 1
             elif idx == last_idx or (  # C at coda
                 idx < last_idx and phoneme_seq[idx + 1] not in self.phoneme_set_C  # CC'
             ):
