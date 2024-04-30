@@ -1,8 +1,7 @@
-from typing import List
 from tqdm import tqdm
 
 
-from ..lon_ import BnErrors
+from ..lon_ import Cleaner
 from .conversion import PhonemeConvertor
 from .syllabification import Syllabification
 from .spelling import Spelling
@@ -28,8 +27,8 @@ class MTransliteration:
         show_steps: bool = False,
     ) -> str:
         words = []
-        for word in tqdm(text.split(), desc="Transliterating..."):
-            # for word in text.split():
+        for i, word in enumerate(tqdm(text.split(), desc="Transliterating...")):
+            # print(f"{i=} | {word=}")
             words.append(self.transliterate(word=word, show_steps=show_steps))
         return "\n".join(words)
 
@@ -39,10 +38,8 @@ class MTransliteration:
         show_steps: bool = False,
         sep: str = "/",
     ) -> str:
-        # 0. Correct common BnErrors
-        for key, value in BnErrors.charmap.items():
-            word = word.replace(key, value)
-        word = BnErrors.filter_valid_bengali_letters(word)
+        # 0. Clean input text
+        word = Cleaner.clean_bn(word, deep_clean=True)
         # 0.1 Skip other process if string is empty
         if not word.strip():
             return ""
@@ -54,10 +51,10 @@ class MTransliteration:
 
         # 2. Syllabification
         # Get split points
-        split_points = self.syllabification.get_split_points(char_seq, phoneme_seq)
+        is_split = self.syllabification.get_is_split(char_seq, phoneme_seq)
 
-        sup_chars = self.use_split_points(char_seq, split_points)
-        sup_phonemes = self.use_split_points(phoneme_seq, split_points, sep=".")
+        sup_chars = self.pc.split_seq_by_bool(char_seq, is_split)
+        sup_phonemes = self.pc.split_seq_by_bool(phoneme_seq, is_split, sep=".")
 
         # 3. Spelling
         # Get words in mm from the syllables
@@ -70,15 +67,3 @@ class MTransliteration:
         res += "".join(chars_mm)
 
         return res
-
-    def use_split_points(
-        self, char_list: List[str], split_points: List[bool], sep: str = ""
-    ) -> List[str]:
-        seq = []
-        used_idx = 0
-        for idx, split_point in enumerate(split_points):
-            if split_point:
-                seq.append(sep.join(char_list[used_idx : idx + 1]))
-                used_idx = idx + 1
-        seq.append(sep.join(char_list[used_idx:]))
-        return seq

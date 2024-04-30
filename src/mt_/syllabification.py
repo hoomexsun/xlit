@@ -7,7 +7,7 @@ class Syllabification:
     def __init__(self) -> None:
         self.pi = PhonemeInventory()
 
-    def get_split_points(
+    def get_is_split(
         self,
         char_seq: List[str],
         phoneme_seq: List[str],
@@ -49,25 +49,42 @@ class Syllabification:
 
         # phoneme based (curr -> idx -> context)
         # Find invalid clusters and split them
+        # Find valid cluster and mark nearest possible split point
         for idx, phoneme in enumerate(phoneme_seq):
             if phoneme == BN.virama:
+
                 if idx > 0 and idx < last_idx:
+                    # 1. Invalid clusters
                     # Same phoneme
                     if phoneme_seq[idx - 1] == phoneme_seq[idx + 1]:
                         split_points[idx] = True
                     # plosive + plosive
-                    if (
+                    elif (
                         self.pi.get_MoA(phoneme_seq[idx - 1]) == MoA.PLOSIVE
                         and self.pi.get_MoA(phoneme_seq[idx + 1]) == MoA.PLOSIVE
                     ):
                         split_points[idx] = True
                     # plosive + nasal
-                    if (
+                    elif (
                         self.pi.get_MoA(phoneme_seq[idx - 1]) == MoA.PLOSIVE
                         and self.pi.get_MoA(phoneme_seq[idx + 1]) == MoA.NASAL
                     ):
                         split_points[idx] = True
                     # dip in ssp and next phoneme is raised coz of vowel
+
+                    # 2. Valid clusters
+                    # split before when syllable initial consonant cluster is detected
+                    elif phoneme_seq[idx + 1] in [
+                        Phoneme.r.value,
+                        Phoneme.j.value,
+                        Phoneme.w.value,
+                    ]:
+                        if idx > 3 and phoneme_seq[idx - 3] == Phoneme.s.value:
+                            split_points[idx - 4] = True
+                        elif idx > 1:
+                            split_points[idx - 2] = True
+
+                    # split after when syllable final consonant cluster is detected
 
         # if consonant + virama at end, then join consonant with previous valid vowel to form syllable
         # Forced addition of split point when more than 2 C exist between two consescutive split points

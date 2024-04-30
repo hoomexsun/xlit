@@ -1,4 +1,4 @@
-from typing import Dict, List, Set
+from typing import List, Tuple
 
 from .b2m import B2P
 from ..lon_ import Phoneme, PhonemeInventory, BN
@@ -54,7 +54,6 @@ class PhonemeConvertor:
                 char_seq.append(text[curr_pos : curr_pos + 2])
                 curr_pos += 2
 
-        # Return character sequence
         return char_seq
 
     def prepare_syllable_phoneme(self, syllable: str) -> List[str]:
@@ -70,7 +69,7 @@ class PhonemeConvertor:
         new_phoneme_seq: List[str] = []
         last_idx = len(phoneme_seq) - 1
         # 1. Add schwa wherever necessary
-        for idx, phoneme in enumerate(phoneme_seq):
+        for i, phoneme in enumerate(phoneme_seq):
             if phoneme not in self.phoneme_set_C:  # C'
                 new_phoneme_seq.append(phoneme)
             # phoneme is C
@@ -79,8 +78,8 @@ class PhonemeConvertor:
                 new_phoneme_seq.append(phoneme)
                 new_phoneme_seq.append(Phoneme.x.value)
             # len > 1
-            elif idx == last_idx or (  # C at coda
-                idx < last_idx and phoneme_seq[idx + 1] not in self.phoneme_set_C  # CC'
+            elif i == last_idx or (  # C at coda
+                i < last_idx and phoneme_seq[i + 1] not in self.phoneme_set_C  # CC'
             ):
                 new_phoneme_seq.append(phoneme)
             else:
@@ -100,3 +99,62 @@ class PhonemeConvertor:
         ]
 
         return new_phoneme_seq
+
+    @staticmethod
+    def split_seq_by_bool(
+        seq: List[str], is_split: List[bool], sep: str = ""
+    ) -> List[str]:
+        """
+        Split a sequence of characters based on boolean split points.
+
+        Args:
+            seq (List[str]): The sequence of characters or phonemes to be split.
+            is_split (List[bool]): A list of boolean split decisions corresponding to each character or phoneme.
+            sep (str, optional): The separator used for joining the characters. Defaults to "".
+
+        Returns:
+            List[str]: A list of segments split according to the provided boolean split points.
+        """
+        indices = [i + 1 for i, sp in enumerate(is_split) if sp]
+        return [
+            sep.join(seq[start:end]) for start, end in zip([0] + indices[:-1], indices)
+        ]
+
+    @staticmethod
+    def group_by_bool(
+        seq: List[str],
+        is_split: List[bool],
+    ) -> List[List[str]]:
+        """
+        Group a sequence of characters based on boolean split points.
+
+        Args:
+            seq (List[str]): The sequence of characters or phonemes to be split.
+            is_split (List[bool]): A list of boolean split decisions corresponding to each character or phoneme.
+
+        Returns:
+            List[str]: A list of segments split according to the provided boolean split points.
+        """
+        indices = [i + 1 for i, sp in enumerate(is_split) if sp]
+        return [seq[start:end] for start, end in zip([0] + indices[:-1], indices)]
+
+    @staticmethod
+    def parse_phoneme_seq(
+        word_phoneme: List[List[str]],
+    ) -> Tuple[List[str], List[bool]]:
+        """
+        Extract phoneme sequences and split points based on a list of groups of phonemes.
+
+        Args:
+            sup_phoneme (List[List[str]]): A list containing groups of phonemes.
+
+        Returns:
+            Tuple[List[str], List[bool]]: A tuple containing the phoneme sequence and corresponding split points.
+        """
+        phoneme_seq = [
+            phoneme for sup_phoneme in word_phoneme for phoneme in sup_phoneme
+        ]
+        is_split = [
+            idx == len(ph) - 1 for ph in word_phoneme for idx, _ in enumerate(ph)
+        ]
+        return phoneme_seq, is_split

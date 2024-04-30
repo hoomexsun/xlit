@@ -141,7 +141,7 @@ class BaselineExtended:
         }
 
     def transliterate(self, word_bn: str):
-        word_mm = word_bn
+        word_mm = Cleaner.clean_bn(word_bn, deep_clean=True)
         # Implement extra parts first
         for key in self.extra_charmap:
             word_mm = word_mm.replace(key, self.extra_charmap[key])

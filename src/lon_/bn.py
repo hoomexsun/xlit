@@ -218,3 +218,15 @@ class BN:
         nukta,
         mark_au,
     }
+
+
+class BNHelper:
+    @staticmethod
+    def has_char(char: str) -> bool:
+        """Check if the character exists in the Bengali alphabet."""
+        return BN.candrabindu <= char <= BN.w
+
+    @staticmethod
+    def has_digit(char: str) -> bool:
+        """Check if the character is a digit."""
+        return BN.zero <= char <= BN.nine

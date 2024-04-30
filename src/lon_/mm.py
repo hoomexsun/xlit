@@ -131,3 +131,15 @@ class MM:
     # Linguistic Sets (Syllabic)
     in_nucleus_set: Set[str] = mapum_set_V.union(in_diphthong_set)
     fi_nucleus_set: Set[str] = cheitap_set_V.union(fi_diphthong_set)
+
+
+class MMHelper:
+    @staticmethod
+    def has_char(char: str) -> bool:
+        """Check if the character exists in the Meetei Mayek alphabet."""
+        return MM.kok <= char <= MM.nine
+
+    @staticmethod
+    def has_digit(char: str) -> bool:
+        """Check if the character is a digit."""
+        return MM.zero <= char <= MM.nine
