@@ -70,7 +70,16 @@ class Syllabification:
                         and self.pi.get_MoA(phoneme_seq[idx + 1]) == MoA.NASAL
                     ):
                         split_points[idx] = True
-                    # dip in ssp and next phoneme is raised coz of vowel
+                    # dip in ssp and next phoneme being vowel is raised
+                    # nasal + plosive + V
+                    elif (
+                        idx < last_idx - 1
+                        and self.pi.get_MoA(phoneme_seq[idx - 1]) == MoA.NASAL
+                        and self.pi.get_MoA(phoneme_seq[idx + 1]) == MoA.PLOSIVE
+                        and phoneme_seq[idx + 2]
+                        in self.pi.phoneme_set_V | self.pi.phoneme_set_D
+                    ):
+                        split_points[idx] = True
 
                     # 2. Valid clusters
                     # split before when syllable initial consonant cluster is detected
