@@ -55,12 +55,16 @@ class Cleaner:
         - str: The cleaned Bengali text.
         """
         mapping_dict: Dict[str, str] = {
+            # Order is important
             # Repitition
             BN.nukta + BN.nukta: BN.nukta,
             BN.virama + BN.virama: BN.virama,
             BN.v_aa + BN.v_aa: BN.v_aa,
             BN.v_i + BN.v_ii: BN.v_ii,
             BN.v_ii + BN.v_i: BN.v_ii,
+            # Mistypes
+            BN.a + BN.v_aa: BN.aa,
+            BN.aa + BN.v_aa: BN.aa,
             # Always true
             BN.v_e + BN.v_aa: BN.v_o,  # ে +  া :  ো
             BN.v_e + BN.mark_au: BN.v_au,  # ে +  ৗ :  ৌ

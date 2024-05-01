@@ -23,6 +23,9 @@ class PhonemeConvertor:
         """
         sep = "/"
         text = f"{sep}{text}{sep}"
+        #! 1. Special case. diphthong followed by matras is not a diphthong and shoukd be
+        #! VCV (for ay) y is semi vowel (check for all diphthongs)
+        #! 2. Special combination changing phoneme include diphthong and cluster with b pronounced as w
         for key in self.sorted_keys:
             text = text.replace(key, f"{sep}{B2P.charmap[key]}{sep}")
         return text.replace(sep * 2, sep)[1:-1].split(sep)

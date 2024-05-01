@@ -87,6 +87,7 @@ def prepare_corpus_transcription():
     original = (
         Path("data/transcribed.txt").read_text(encoding="utf-8").strip().split("\n")
     )
+    count_ind, count_exo, count_ne, count_hy, count_rem = 0, 0, 0, 0, 0
     words_ind, words_exo = set(), set()
     for idx, line in enumerate(original):
         # print(f"{idx=} | {line=}")
@@ -94,8 +95,17 @@ def prepare_corpus_transcription():
         dist_id = int(dist_id)
         if dist_id == 1:
             words_ind.add(word_bn)
+            count_ind += 1
         elif dist_id > 1:
             words_exo.add(word_bn)
+            if dist_id == 2:
+                count_exo += 1
+            if dist_id == 3:
+                count_ne += 1
+            if dist_id == 4:
+                count_hy += 1
+        elif dist_id == 0:
+            count_rem += 1
 
     words_dict: Dict[int, List[str]] = {
         0: [],  # Indigenous words
@@ -131,7 +141,12 @@ def prepare_corpus_transcription():
     print(
         f"Completed Transcription\n{len(original)=}\n"
         f"{len(words_ind)=} | {len(words_exo)=}\n"
-        f"{len(words_news)=} | {len(words_literature)=}"
+        f"{len(words_news)=} | {len(words_literature)=}\n"
+    )
+    print(
+        f"Corpus Distribution\n"
+        f"{count_ind=} | {count_exo=} | {count_ne=} | {count_hy=}\n"
+        f"{(count_ind+count_exo+count_ne+count_hy)=} | {count_rem=}\n"
     )
 
 
