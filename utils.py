@@ -55,11 +55,15 @@ def prepare_files(
 def prepare_mt_transcription():
     original = Path("data/transcribed.txt").read_text(encoding="utf-8").strip()
     transcribed_dict = {
-        line.split("\t")[0]: line.split("\t")[1] for line in original.split("\n")
+        line.split("\t")[0]: line.split("\t")[1]
+        for line in tqdm(original.split("\n"), desc="Extracting...")
     }
     words_bn = sorted(transcribed_dict.keys())
     transcribed = "\n".join(
-        [f"{word_bn}\t{word_mm}" for word_bn, word_mm in transcribed_dict.items()]
+        [
+            f"{word_bn}\t{word_mm}"
+            for word_bn, word_mm in tqdm(transcribed_dict.items(), desc="Preparing...")
+        ]
     )
     Path("data/mt_/transcribed.txt").write_text(transcribed, encoding="utf-8")
     Path("data/mt_/words.txt").write_text("\n".join(words_bn), encoding="utf-8")
@@ -89,7 +93,7 @@ def prepare_corpus_transcription():
     )
     count_ind, count_exo, count_ne, count_hy, count_rem = 0, 0, 0, 0, 0
     words_ind, words_exo = set(), set()
-    for idx, line in enumerate(original):
+    for idx, line in enumerate(tqdm(original, desc="Extracting...")):
         # print(f"{idx=} | {line=}")
         word_bn, _, dist_id = line.split("\t")
         dist_id = int(dist_id)
@@ -114,7 +118,7 @@ def prepare_corpus_transcription():
         3: [],  # Literature subset
     }
     # Start splitting
-    for line in tqdm(original, desc="Extracting..."):
+    for line in tqdm(original, desc="Preparing..."):
         word_bn, word_mm, _ = line.split("\t")
         new_line = f"{word_bn}\t{word_mm}"
         if word_bn in words_ind:

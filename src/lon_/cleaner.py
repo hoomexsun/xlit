@@ -71,6 +71,9 @@ class Cleaner:
             # Mistypes
             BN.v_aa + BN.v_e: BN.v_o,  # া +  ে :  ো
             BN.mark_au + BN.v_aa: BN.v_au,  # ৗ +  ে :  ৌ
+            # Double vowel mistype
+            BN.v_o + BN.v_aa: BN.v_o,
+            BN.v_o + BN.mark_au: BN.v_au,
             # Combination with nukta
             BN.dda + BN.nukta: BN.rra,
             BN.ddha + BN.nukta: BN.rha,

@@ -27,13 +27,15 @@ class Syllabification:
                     split_points[idx - 1] = True
             # dependent vowel and diphthongs
             elif char in BN.fi_set_V | BN.fi_diphthong_set:
+                if idx != last_idx and char in BN.fi_xu:
+                    split_points[idx] = True
                 if idx > 1:
                     if (
                         char_seq[idx - 1] in BN.main_set_C
                         and char_seq[idx - 2] != BN.virama
                     ):
                         split_points[idx - 2] = True
-            # dependent consonants
+            # dependent consonants & xu
             elif char in BN.fi_set_C:
                 if idx != last_idx:
                     split_points[idx] = True
