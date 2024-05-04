@@ -28,6 +28,18 @@ class PhonemeConvertor:
         #! 2. Special combination changing phoneme include diphthong and cluster with b pronounced as w
         #! 3. vocalic r should be ri not just r (viramma-r)
         #! 4. cluster with b at end where it should be w like sb -> sw
+
+        # # Exceptional but always true changes
+        # for idx, char in enumerate(char_seq):
+        #     if char == BN.yya and char_seq[idx + 1] == BN.virama:
+        #         phoneme_seq[idx] = Phoneme.i.value
+        #         split_points[idx + 1] = True
+        #     if char == BN.v_aa + BN.yya and char_seq[idx + 1] in BN.fi_set_V:
+        #         phoneme_seq[idx] == Phoneme.a.value
+        #         char_seq[idx] = char_seq
+        #     if char == BN.v_aa + BN.yya and char_seq[idx + 1] in BN.fi_set_V:
+        #         phoneme_seq[idx]
+
         for key in self.sorted_keys:
             text = text.replace(key, f"{sep}{B2P.charmap[key]}{sep}")
         return text.replace(sep * 2, sep)[1:-1].split(sep)

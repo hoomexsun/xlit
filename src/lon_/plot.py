@@ -23,7 +23,7 @@ def plot_ssp(words_in_phonemes: List[str]) -> None:
         col = i % 2
 
         sonority_values = [
-            mmP.get_seivers(
+            mmP.get_sievers(
                 phoneme,
             )[0]
             for phoneme in phonemes

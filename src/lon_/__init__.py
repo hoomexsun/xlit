@@ -1,6 +1,8 @@
 from .phoneme import (
     PoA,
     MoA,
+    Sievers,
+    Parker,
     Phoneme,
     ARPABETPhoneme,
     PhonemeInventory,
@@ -13,6 +15,8 @@ from .cleaner import Cleaner
 __all__ = [
     "PoA",
     "MoA",
+    "Sievers",
+    "Parker",
     "Phoneme",
     "PhonemeInventory",
     "ARPABETPhoneme",

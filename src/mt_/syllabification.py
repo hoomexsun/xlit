@@ -1,6 +1,6 @@
-from typing import List
+from typing import List, Tuple
 
-from ..lon_ import BN, Phoneme, PhonemeInventory, PoA, MoA
+from ..lon_ import BN, Phoneme, PhonemeInventory, PoA, MoA, Sievers
 
 
 class Syllabification:
@@ -11,7 +11,7 @@ class Syllabification:
         self,
         char_seq: List[str],
         phoneme_seq: List[str],
-    ) -> List[bool]:
+    ) -> Tuple[List[str], List[bool]]:
         # Initialise split point to False
         # split_points[idx] <- after char
         # split_points[idx - 1] <- before char and so on
@@ -21,8 +21,16 @@ class Syllabification:
 
         # char based (curr -> idx -> context)
         for idx, char in enumerate(char_seq):
+            # phone h
+            # if (
+            #     char == BN.h
+            #     and char_seq[idx + 1]
+            #     not in BN.fi_set_V | BN.fi_set_C | BN.fi_diphthong_set
+            # ):
+            #     if idx > 0:
+            #         split_points[idx - 1] = True
             # Independent vowel and diphthongs
-            if char in BN.in_diphthong_set | BN.main_set_V:
+            if char in BN.in_diphthong_set | BN.main_set_V | {BN.h}:
                 if idx > 0:
                     split_points[idx - 1] = True
             # dependent vowel and diphthongs
@@ -62,30 +70,37 @@ class Syllabification:
                         split_points[idx] = True
                     # plosive + plosive
                     elif (
-                        self.pi.get_MoA(phoneme_seq[idx - 1]) == MoA.PLOSIVE
-                        and self.pi.get_MoA(phoneme_seq[idx + 1]) == MoA.PLOSIVE
+                        self.pi.get_sievers(phoneme_seq[idx - 1]) == MoA.PLOSIVE
+                        and self.pi.get_sievers(phoneme_seq[idx + 1]) == MoA.PLOSIVE
                     ):
                         split_points[idx] = True
                     # plosive + nasal
                     elif (
-                        self.pi.get_MoA(phoneme_seq[idx - 1]) == MoA.PLOSIVE
-                        and self.pi.get_MoA(phoneme_seq[idx + 1]) == MoA.NASAL
+                        self.pi.get_sievers(phoneme_seq[idx - 1]) == MoA.PLOSIVE
+                        and self.pi.get_sievers(phoneme_seq[idx + 1]) == MoA.NASAL
                     ):
                         split_points[idx] = True
                     # dip in ssp and next phoneme being vowel is raised
                     # nasal + plosive + V
                     elif (
                         idx < last_idx - 1
-                        and self.pi.get_MoA(phoneme_seq[idx - 1]) == MoA.NASAL
-                        and self.pi.get_MoA(phoneme_seq[idx + 1]) == MoA.PLOSIVE
+                        and self.pi.get_sievers(phoneme_seq[idx - 1]) == MoA.NASAL
+                        and self.pi.get_sievers(phoneme_seq[idx + 1]) == MoA.PLOSIVE
                         and phoneme_seq[idx + 2]
                         in self.pi.phoneme_set_V | self.pi.phoneme_set_D
+                    ):
+                        split_points[idx] = True
+                    # glide + liquid
+                    elif (
+                        idx < last_idx - 1
+                        and self.pi.get_sievers(phoneme_seq[idx - 1]) == Sievers.GLIDE
+                        and self.pi.get_sievers(phoneme_seq[idx + 1]) == Sievers.LIQUID
                     ):
                         split_points[idx] = True
 
                     # 2. Valid clusters
                     # split before when syllable initial consonant cluster is detected
-                    elif phoneme_seq[idx + 1] in [
+                    if phoneme_seq[idx + 1] in [
                         Phoneme.r.value,
                         Phoneme.j.value,
                         Phoneme.w.value,

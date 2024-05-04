@@ -367,28 +367,40 @@ class PhonemeInventory:
         else:
             return -1, "Error"
 
-    def get_seivers(self, chars: str) -> Tuple[int, str]:
+    def get_seivers_det(self, chars: str) -> Tuple[int, str]:
         """Get Sievers SSP value and name for a given character."""
         return self._get_ssp(chars, 0, self.ssp_sievers)
 
-    def get_parker(self, chars: str) -> Tuple[int, str]:
+    def get_parker_det(self, chars: str) -> Tuple[int, str]:
         """Get Parker SSP value and name for a given character."""
         return self._get_ssp(chars, 1, self.ssp_parker)
 
-    def get_PoA(self, consonant_phoneme: str) -> PoA:
-        """Get Place of articulation of consonant phoneme."""
-        return (
-            lambda x: self.feats_consonants.get(
-                x, ((0, 0), (PoA.UNDEFINED, MoA.UNDEFINED, False))
-            )[1][0]
-        )(consonant_phoneme)
+    def get_sievers(self, consonant_phoneme: str) -> Sievers:
+        """Get Sievers ssp value."""
+        return self.__get_specific(consonant_phoneme, 0, 0)
 
-    def get_MoA(self, consonant_phoneme: str) -> MoA:
-        """Get Manner of articulation of consonant phoneme."""
+    def get_parker(self, consonant_phoneme: str) -> Parker:
+        """Get Parker ssp value."""
+        return self.__get_specific(consonant_phoneme, 0, 1)
+
+    def get_PoA(self, consonant_phoneme: str) -> PoA:
+        """Get Place of articulation."""
+        return self.__get_specific(consonant_phoneme, 1, 0)
+
+    def get_sievers(self, consonant_phoneme: str) -> MoA:
+        """Get Manner of articulation."""
+
+        return self.__get_specific(consonant_phoneme, 1, 1)
+
+    def get_is_voiced(self, consonant_phoneme: str) -> bool:
+        """Get voiced or voiceless."""
+        return self.__get_specific(consonant_phoneme, 1, 2)
+
+    def __get_specific(self, consonant_phoneme: str, tuple_1: int, tuple_2: int):
         return (
             lambda x: self.feats_consonants.get(
                 x, ((0, 0), (PoA.UNDEFINED, MoA.UNDEFINED, False))
-            )[1][1]
+            )[tuple_1][tuple_2]
         )(consonant_phoneme)
 
 
