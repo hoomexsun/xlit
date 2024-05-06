@@ -128,6 +128,9 @@ class MM:
         fi_xu,
     }
 
+    # Digits set
+    digit_set: Set[str] = {chr(char) for char in range(ord(zero), ord(nine) + 1)}
+
     # Linguistic Sets (Syllabic)
     in_nucleus_set: Set[str] = mapum_set_V.union(in_diphthong_set)
     fi_nucleus_set: Set[str] = cheitap_set_V.union(fi_diphthong_set)

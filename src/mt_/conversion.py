@@ -45,6 +45,7 @@ class PhonemeConvertor:
         # vowel + yya + vowel is not diphthong (for only with matras)
         # change every ya+virama to i before converting to phoneme
         # jophola, rophola and bophola
+
         for key in self.sorted_keys:
             text = text.replace(key, f"{sep}{B2P.charmap[key]}{sep}")
         return text.replace(sep * 2, sep)[1:-1].split(sep)

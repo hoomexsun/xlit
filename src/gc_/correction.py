@@ -31,7 +31,7 @@ class Correction:
             text,
             chars=BN.L_vowels,
         )
-        text = Cleaner.clean_bn(text)
+        text = Cleaner.clean_bn_utf(text)
 
         steps.append(text)
 

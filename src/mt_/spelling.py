@@ -15,7 +15,7 @@ class Spelling:
         chars_mm: List[str] = []
         for phoneme_seq in sup_phonemes:
             mm_syllable = (
-                Cleaner.replace_spell_mm(self.spell_syllable(phoneme_seq))
+                Cleaner.deepclean_mm_utf(self.spell_syllable(phoneme_seq))
                 if phoneme_seq
                 else ""
             )

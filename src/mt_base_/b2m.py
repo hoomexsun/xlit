@@ -117,6 +117,7 @@ class Baseline:
         word_mm = word_bn
         for key in self.sorted_keys:
             word_mm = word_mm.replace(key, self.charmap[key])
+        word_mm = Cleaner.filter_mm_utf(word_mm)
         return word_mm
 
 
@@ -141,7 +142,8 @@ class BaselineExtended:
         }
 
     def transliterate(self, word_bn: str):
-        word_mm = Cleaner.clean_bn(word_bn, deep_clean=True)
+        # Deep Clean
+        word_mm = Cleaner.deepclean_bn_utf(word_bn)
         # Implement extra parts first
         for key in self.extra_charmap:
             word_mm = word_mm.replace(key, self.extra_charmap[key])
@@ -149,6 +151,5 @@ class BaselineExtended:
         for key in self.baseline.sorted_keys:
             word_mm = word_mm.replace(key, self.baseline.charmap[key])
 
-        word_mm = Cleaner.clean_mm(word_mm)
-        word_mm = Cleaner.replace_spell_mm(word_mm)
+        word_mm = Cleaner.filter_mm_utf(Cleaner.deepclean_mm_utf(word_mm))
         return word_mm

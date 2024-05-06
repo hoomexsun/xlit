@@ -39,7 +39,7 @@ class MTransliteration:
         sep: str = "/",
     ) -> str:
         # 0. Clean input text
-        word = Cleaner.clean_bn(word, deep_clean=True)
+        word = Cleaner.deepclean_bn_utf(word)
         res = ""
 
         # 0.1 Skip other process if string is empty

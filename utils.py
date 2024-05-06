@@ -163,6 +163,6 @@ def clean_transcribed() -> None:
     for line in tqdm(lines, desc="Cleaning..."):
         word_bn, word_mm = line.split("\t")
         cleaned_word_bn = word_bn
-        cleaned_word_mm = c.clean_mm(word_mm)
+        cleaned_word_mm = c.clean_mm_utf(word_mm)
         new_lines.add(f"{cleaned_word_bn}\t{cleaned_word_mm}")
     transcribed_file.write_text("\n".join(sorted(new_lines)), encoding="utf-8")
