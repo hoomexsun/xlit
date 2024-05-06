@@ -94,11 +94,21 @@ class Cleaner:
                 for char in BN.fi_set_V | BN.main_set_V | BN.fi_set_C
             }
 
+            diacritic_double_err = {
+                err * 2: err
+                for err in {
+                    BN.virama + BN.ra,
+                    BN.virama + BN.ya,
+                }
+            }
+
             rare_error_mapping_dict = {
                 **digit_mapping_dict,
                 **invalid_virama_pre,
                 **invalid_virama_suff,
+                **diacritic_double_err,
             }
+
             word_bn = word_bn[1:] if word_bn[0] == BN.virama else word_bn
             word_bn = Cleaner.clean_text(word_bn, rare_error_mapping_dict)
 

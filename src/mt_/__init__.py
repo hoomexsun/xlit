@@ -1,3 +1,4 @@
+from typing import List
 from tqdm import tqdm
 
 
@@ -8,8 +9,7 @@ from .spelling import Spelling
 
 __all__ = [
     "MTransliteration",
-    "B2P",
-    "P2M",
+    "PhonemeConvertor",
     "Syllabification",
     "Spelling",
 ]
@@ -40,30 +40,41 @@ class MTransliteration:
     ) -> str:
         # 0. Clean input text
         word = Cleaner.clean_bn(word, deep_clean=True)
+        res = ""
+
         # 0.1 Skip other process if string is empty
         if not word.strip():
             return ""
 
-        # 1. Phoneme Conversion
-        # Prepare phoneme list and characters list (includes diphthongs)
+        # 1.1. Phoneme Conversion
+        # Prepare phoneme sequence and characters sequence
         phoneme_seq = self.pc.extract_phoneme_seq(word)
         char_seq = self.pc.extract_char_seq(word, phoneme_seq)
 
-        # 2. Syllabification
+        # 1.2. Syllabification
         # Get split points
-        is_split = self.syllabification.get_is_split(char_seq, phoneme_seq)
+        split_tags = self.syllabification.get_split_tags(char_seq, phoneme_seq)
 
-        sup_chars = self.pc.split_seq_by_bool(char_seq, is_split)
-        sup_phonemes = self.pc.split_seq_by_bool(phoneme_seq, is_split, sep=".")
+        syl_chars = self.pc.split_seq_by_bool(char_seq, split_tags)
 
-        # 3. Spelling
-        # Get words in mm from the syllables
-        chars_mm, phonemes_mm = self.spelling.spell(sup_chars)
-
-        # Prepare result string
-        res = ""
         if show_steps:
-            res += f"{sep.join(sup_chars)}\t{sep.join(sup_phonemes)}\t{sep.join(phonemes_mm)}\t"
+            syl_phonemes = self.pc.split_seq_by_bool(phoneme_seq, split_tags, sep=".")
+            res += f"{sep.join(syl_chars)}\t{sep.join(syl_phonemes)}\t"
+
+        # 2.1. Phoneme Conversion
+        # Prepare phoneme list and characters list (includes diphthongs)
+        sup_phonemes: List[List[str]] = self.pc.split_more(
+            [self.pc.prepare_syllable_phoneme(syllable) for syllable in syl_chars]
+        )
+
+        if show_steps:
+            syl_phonemes = [".".join(phonemes) for phonemes in sup_phonemes]
+            res += f"{sep.join(syl_phonemes)}\t"
+
+        # 2.2. Spelling
+        # Get words in mm from the syllables
+        chars_mm = self.spelling.spell(sup_phonemes)
+
         res += "".join(chars_mm)
 
         return res
