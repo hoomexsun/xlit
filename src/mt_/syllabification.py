@@ -19,7 +19,9 @@ class Syllabification:
         split_tags = [False] * len(char_seq)
         split_tags.append(True)
 
-        # 1. char based (curr -> idx -> context)
+        glide_and_rhotic = {Phoneme.r.value, Phoneme.j.value, Phoneme.w.value}
+
+        # 1. char based
         for idx, char in enumerate(char_seq):
             # Independent vowel, diphthongs and /H/
             if char in BN.in_diphthong_set | BN.main_set_V | {BN.h}:
@@ -49,7 +51,7 @@ class Syllabification:
             else:
                 pass
 
-        # 2. phoneme based (curr -> idx -> context)
+        # 2. phoneme + char based
         # Find invalid clusters and split them
         # Find valid cluster and mark nearest possible split point
         for idx, phoneme in enumerate(phoneme_seq):
@@ -60,8 +62,27 @@ class Syllabification:
                     # Same phoneme
                     if phoneme_seq[idx - 1] == phoneme_seq[idx + 1]:
                         split_tags[idx] = True
-                    # plosive + plosive
-                    # plosive + nasal
+                    # VCCV
+                    elif (
+                        1 < idx < last_idx - 1
+                        and char_seq[idx - 2]
+                        in BN.main_set_V.union(
+                            BN.in_diphthong_set, BN.fi_set_V, BN.fi_diphthong_set
+                        ).difference(BN.fi_xu)
+                        and char_seq[idx + 2]
+                        in BN.fi_set_V.union(BN.fi_diphthong_set).difference(BN.fi_xu)
+                        and phoneme_seq[idx + 1] not in glide_and_rhotic
+                    ):
+                        split_tags[idx] = True
+                    # IV + Nasal + Plosive
+                    elif (
+                        1 < idx < last_idx - 1
+                        and self.pi.get_sievers(phoneme_seq[idx - 1]) == MoA.NASAL
+                        and self.pi.get_sievers(phoneme_seq[idx + 1]) == MoA.PLOSIVE
+                        and char_seq[idx - 2] in BN.main_set_V | BN.in_diphthong_set
+                    ):
+                        split_tags[idx] = True
+                    # plosive + plosive & plosive + nasal
                     elif self.pi.get_sievers(phoneme_seq[idx - 1]) == MoA.PLOSIVE and (
                         self.pi.get_sievers(phoneme_seq[idx + 1])
                         in {MoA.PLOSIVE, MoA.NASAL}
@@ -88,11 +109,7 @@ class Syllabification:
 
                     # 2. Valid clusters
                     # split before when syllable initial consonant cluster is detected
-                    if phoneme_seq[idx + 1] in [
-                        Phoneme.r.value,
-                        Phoneme.j.value,
-                        Phoneme.w.value,
-                    ]:
+                    if phoneme_seq[idx + 1] in glide_and_rhotic:
                         if idx > 3 and phoneme_seq[idx - 3] == Phoneme.s.value:
                             split_tags[idx - 4] = True
                         elif idx > 1:
