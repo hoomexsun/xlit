@@ -36,9 +36,9 @@ class Spelling:
         S = P2M.mm_begin[phoneme_seq[0]]
         # To check whether nucleus is met
         flag = True if phoneme_seq[0] in self.pi.phoneme_set_V else False
-        for idx, phoneme in enumerate(phoneme_seq[1:]):
+        for i, phoneme in enumerate(phoneme_seq[1:]):
             if phoneme == BN.virama:
-                if idx != len(phoneme_seq) - 2:  # Exclude virama at last position
+                if i != len(phoneme_seq) - 2:  # Exclude virama at last position
                     S += MM.apun_iyek
             elif flag:  # Next phoneme after Nucleus
                 S += P2M.mm_end[phoneme]

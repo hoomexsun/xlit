@@ -28,17 +28,6 @@ class PhonemeConvertor:
         #! 3. vocalic r should be ri not just r (viramma-r)
         #! 4. cluster with b at end where it should be w like sb -> sw
 
-        # # Exceptional but always true changes
-        # for idx, char in enumerate(char_seq):
-        #     if char == BN.yya and char_seq[idx + 1] == BN.virama:
-        #         phoneme_seq[idx] = Phoneme.i.value
-        #         split_points[idx + 1] = True
-        #     if char == BN.v_aa + BN.yya and char_seq[idx + 1] in BN.fi_set_V:
-        #         phoneme_seq[idx] == Phoneme.a.value
-        #         char_seq[idx] = char_seq
-        #     if char == BN.v_aa + BN.yya and char_seq[idx + 1] in BN.fi_set_V:
-        #         phoneme_seq[idx]
-
         # vocalic_r_vowel -> connected r and i sound
         # a+y and a+yy are both ai but y have /Z/ and yya have /Y/
         # some /B/ will have /BH/ in cluster
@@ -192,9 +181,7 @@ class PhonemeConvertor:
         phoneme_seq = [
             phoneme for sup_phoneme in word_phoneme for phoneme in sup_phoneme
         ]
-        is_split = [
-            idx == len(ph) - 1 for ph in word_phoneme for idx, _ in enumerate(ph)
-        ]
+        is_split = [i == len(ph) - 1 for ph in word_phoneme for i, _ in enumerate(ph)]
         return phoneme_seq, is_split
 
 

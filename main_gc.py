@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, Tuple, Union
+from typing import List, Union
 
 from tqdm import tqdm
 
@@ -44,7 +44,7 @@ def run_detailed(
         default_root_dir=GC_DEFAULT_ROOT_DIR,
     )
     content: str = words_file.read_text(encoding="utf-8").strip()
-    output: str = gc.correct_words(content, include_steps=True)
+    output: str = gc.correct_words(content, show_steps=True)
     detailed_content = "\n".join(
         [
             f"{word_s550}\t{detailed_word_bn}"
@@ -113,9 +113,9 @@ def evaluate(
     err = 0 # Total edit distance
     num_mismatch = 0  # Number of words with error
     eval_content = eval_file.read_text(encoding="utf-8").strip()
-    for idx, line in enumerate(tqdm(eval_content.split("\n"), desc="Evaluating")):
+    for i, line in enumerate(tqdm(eval_content.split("\n"), desc="Evaluating")):
         _, _, count, edit_distance = line.split("\t")
-        # print(f"{idx=} | {line=} | {fields=}")
+        # print(f"{i=} | {line=}")
         M += 1
         N += int(count)
         if edit_distance != "0":

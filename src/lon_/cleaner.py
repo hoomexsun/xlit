@@ -57,8 +57,8 @@ class Cleaner:
         if MM.ngou_lonsum not in word_mm:
             return word_mm
         fixed_chars_reverse = ""
-        for idx, char in enumerate(word_mm):
-            if char == MM.ngou_lonsum and word_mm[idx - 1] not in MM.cheitap_set_V:
+        for i, char in enumerate(word_mm):
+            if char == MM.ngou_lonsum and word_mm[i - 1] not in MM.cheitap_set_V:
                 fixed_chars_reverse += MM.nung
             else:
                 fixed_chars_reverse += char

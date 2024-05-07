@@ -13,12 +13,11 @@ class GlyphCorrection:
     def correct_words(
         self,
         text: str,
-        include_steps: bool = False,
+        show_steps: bool = False,
     ) -> str:
         words = []
         for word in tqdm(text.split(), desc="Correcting Glyphs..."):
-            # for word in text.split():
-            words.append(self.correct(text=word, include_steps=include_steps))
+            words.append(self.correct(text=word, include_steps=show_steps))
         return "\n".join(words)
 
     def correct(

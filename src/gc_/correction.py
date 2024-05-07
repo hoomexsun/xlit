@@ -61,15 +61,15 @@ class Correction:
             text = text.replace(char, "")
         # 1. Fixing position of r glyph
         char_list = []
-        for idx, char in enumerate(text):
+        for i, char in enumerate(text):
             if char in charmap:
-                start_idx = (
-                    idx - 7
-                    if idx > 6
-                    else (idx - 5 if idx > 4 else (idx - 3 if idx > 2 else idx - 1))
+                start = (
+                    i - 7
+                    if i > 6
+                    else (i - 5 if i > 4 else (i - 3 if i > 2 else i - 1))
                 )
-                substring, offset = self.__jump(text[start_idx : idx + 1][::-1])
-                char_list = char_list[: idx - offset] + substring[::-1]
+                substring, offset = self.__jump(text[start : i + 1][::-1])
+                char_list = char_list[: i - offset] + substring[::-1]
             else:
                 char_list.append(char)
         # 2. Post mapping r
@@ -86,19 +86,19 @@ class Correction:
         # 1. Fixing Left Vowels' position
         char_list = []
         skip_index = -1
-        for idx, char in enumerate(text):
-            if idx == skip_index:
+        for i, char in enumerate(text):
+            if i == skip_index:
                 skip_index = -1
             elif char in chars:
-                stop_idx = (
-                    idx + 8
-                    if idx <= len(text) - 7
-                    else (idx + 6 if idx <= len(text) - 5 else idx + 4)
+                stop = (
+                    i + 8
+                    if i <= len(text) - 7
+                    else (i + 6 if i <= len(text) - 5 else i + 4)
                 )
-                substring, offset = self.__jump(text[idx:stop_idx])
+                substring, offset = self.__jump(text[i:stop])
                 char_list += substring
-                skip_index = idx + offset
-            elif idx > skip_index:
+                skip_index = i + offset
+            elif i > skip_index:
                 char_list.append(char)
 
         text = "".join(char_list)
@@ -106,9 +106,9 @@ class Correction:
 
     def __jump(self, chars: str) -> Tuple[List[str], int]:
         char, *right = chars
-        idx = 0
-        while idx < len(right) - 1 and right[idx + 1] == BN.virama:
-            idx += 2
-        if idx >= len(right):
+        i = 0
+        while i < len(right) - 1 and right[i + 1] == BN.virama:
+            i += 2
+        if i >= len(right):
             return list(chars), 1
-        return (right[: idx + 1] + [char], idx + 1)
+        return (right[: i + 1] + [char], i + 1)

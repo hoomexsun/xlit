@@ -214,7 +214,7 @@ def save_evaluation(
     N = 0  # Number of characters
     err = 0  # Total edit distance
     num_mismatch = 0  # Number of words with error
-    for idx, word in enumerate(tqdm(words, desc=f"{model_name} Evaluation")):
+    for i, word in enumerate(tqdm(words, desc=f"{model_name} Evaluation")):
         target = transcribed_dict.get(word, "")
         output = transliterated_dict.get(word, "")
         if target != output:

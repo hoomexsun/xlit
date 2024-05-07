@@ -30,7 +30,7 @@ def plot_ssp(words_in_phonemes: List[str]) -> None:
         ]
         y = np.array(sonority_values)
 
-        phoneme_labels = [f"{idx}/{phoneme}" for idx, phoneme in enumerate(phonemes)]
+        phoneme_labels = [f"{i}/{phoneme}" for i, phoneme in enumerate(phonemes)]
 
         axes[row, col].plot(phoneme_labels, y, marker="*", label=phonemes)
 

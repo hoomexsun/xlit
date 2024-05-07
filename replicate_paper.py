@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Dict
 
 import matplotlib.pyplot as plt
+import pandas as pd
 
 from main_mt import run_evaluate, run_evaluate_baseline
 from utils import prepare_corpus_transcription
@@ -27,7 +28,7 @@ def evaluate(data_subdir_dict: Dict[str, str]):
 def plot(data_subdir_dict: Dict[str, str], result_files: Dict[str, str]):
     metrics = ["WER", "CER"]
     fig, axs = plt.subplots(1, 2, figsize=(12, 6))
-    for idx, metric in enumerate(metrics):
+    for i, metric in enumerate(metrics):
         data_points = {data_type: [] for data_type in data_subdir_dict}
         for data_type, transcribed_file in data_subdir_dict.items():
             wer_values, cer_values = [], []
@@ -41,7 +42,7 @@ def plot(data_subdir_dict: Dict[str, str], result_files: Dict[str, str]):
             data_points[data_type].extend(wer_values if metric == "WER" else cer_values)
 
         # Plot on the corresponding subplot
-        ax = axs[idx]
+        ax = axs[i]
         for data_type, values in data_points.items():
             ax.plot(values, label=f"{data_type}")
 
@@ -53,6 +54,9 @@ def plot(data_subdir_dict: Dict[str, str], result_files: Dict[str, str]):
         ax.set_xticks([0, 1, 2])
         ax.set_xticklabels(result_files.keys())
         # ax.set_ylim([0, 100])
+
+        data = pd.DataFrame(data_points, index=list(result_files.keys()))
+        print(f"\n{metric}\n{data}")
 
     plt.savefig(Path("data/corpus/graph.png"))
     plt.tight_layout()

@@ -61,15 +61,10 @@ class Syllabification:
                     if phoneme_seq[idx - 1] == phoneme_seq[idx + 1]:
                         split_tags[idx] = True
                     # plosive + plosive
-                    elif (
-                        self.pi.get_sievers(phoneme_seq[idx - 1]) == MoA.PLOSIVE
-                        and self.pi.get_sievers(phoneme_seq[idx + 1]) == MoA.PLOSIVE
-                    ):
-                        split_tags[idx] = True
                     # plosive + nasal
-                    elif (
-                        self.pi.get_sievers(phoneme_seq[idx - 1]) == MoA.PLOSIVE
-                        and self.pi.get_sievers(phoneme_seq[idx + 1]) == MoA.NASAL
+                    elif self.pi.get_sievers(phoneme_seq[idx - 1]) == MoA.PLOSIVE and (
+                        self.pi.get_sievers(phoneme_seq[idx + 1])
+                        in {MoA.PLOSIVE, MoA.NASAL}
                     ):
                         split_tags[idx] = True
                     # dip in ssp and next phoneme being vowel is raised
@@ -82,6 +77,7 @@ class Syllabification:
                         in self.pi.phoneme_set_V | self.pi.phoneme_set_D
                     ):
                         split_tags[idx] = True
+
                     # glide + liquid
                     elif (
                         idx < last_idx - 1
