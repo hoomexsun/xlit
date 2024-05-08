@@ -26,20 +26,22 @@ def evaluate(data_subdir_dict: Dict[str, str]):
 
 
 def plot(data_subdir_dict: Dict[str, str], result_files: Dict[str, str]):
-    metrics = ["WER", "CER"]
+    metrics = ["Accuracy", "CER"]
     fig, axs = plt.subplots(1, 2, figsize=(12, 6))
     for i, metric in enumerate(metrics):
         data_points = {data_type: [] for data_type in data_subdir_dict}
         for data_type, transcribed_file in data_subdir_dict.items():
-            wer_values, cer_values = [], []
+            w_values, c_values = [], []
             for result_file in result_files.values():
                 result_file = Path(transcribed_file) / result_file
                 result_file_lines = (
                     result_file.read_text(encoding="utf-8").strip().split("\n")
                 )
-                wer_values.append(float(result_file_lines[0]))
-                cer_values.append(float(result_file_lines[1]))
-            data_points[data_type].extend(wer_values if metric == "WER" else cer_values)
+                w_values.append(100 - float(result_file_lines[0]))
+                c_values.append(float(result_file_lines[1]))
+            data_points[data_type].extend(
+                w_values if metric == "Accuracy" else c_values
+            )
 
         # Plot on the corresponding subplot
         ax = axs[i]
@@ -49,7 +51,7 @@ def plot(data_subdir_dict: Dict[str, str], result_files: Dict[str, str]):
         ax.set_xlabel("Models")
         ax.set_ylabel(f"{metric} (%)")
         ax.set_title(f"{metric} Comparison")
-        ax.legend()
+        ax.legend(title="Data Subset")
         ax.grid(True)
         ax.set_xticks([0, 1, 2])
         ax.set_xticklabels(result_files.keys())
