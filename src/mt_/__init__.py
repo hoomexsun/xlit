@@ -47,9 +47,8 @@ class MTransliteration:
             return ""
 
         # 1.1. Phoneme Conversion
-        # Prepare phoneme sequence and characters sequence
-        phoneme_seq = self.pc.extract_phoneme_seq(word)
-        char_seq = self.pc.extract_char_seq(word, phoneme_seq)
+        # Prepare phoneme sequence and character sequence
+        phoneme_seq, char_seq = self.pc.extract_seq(word)
 
         # 1.2. Syllabification
         # Get split points

@@ -11,62 +11,60 @@ class PhonemeConvertor:
         self.phoneme_set_C = self.pi.phoneme_set_C
         self.sorted_keys = sorted(B2P.charmap.keys(), key=len, reverse=True)
 
-    def extract_phoneme_seq(self, text: str) -> List[str]:
-        """Extracting phoneme sequence using charmap
+    def extract_seq(
+        self, text: str, allow_multiple: bool = False
+    ) -> Tuple[List[str], List[str]]:
+        """Extracting phoneme sequence and character sequence
 
         Args:
             text (str): text in Bengali
+            allow_multiple (bool): allow multiple phoneme for single character
 
         Returns:
-            List[str]: Phoneme Sequence
+            Tuple[List[str], List[str]]: (Phoneme Sequence, Character sequence)
         """
-        sep = "/"
-        text = f"{sep}{text}{sep}"
-        #! 1. Special case. diphthong followed by matras is not a diphthong and shoukd be
-        #! VCV (for ay) y is semi vowel (check for all diphthongs)
-        #! 2. Special combination changing phoneme include diphthong and cluster with b pronounced as w
-        #! 3. vocalic r should be ri not just r (viramma-r)
-        #! 4. cluster with b at end where it should be w like sb -> sw
 
-        # vocalic_r_vowel -> connected r and i sound
-        # a+y and a+yy are both ai but y have /Z/ and yya have /Y/
-        # some /B/ will have /BH/ in cluster
-        # vowel + yya + vowel is not diphthong (for only with matras)
-        # change every ya+virama to i before converting to phoneme
-        # jophola, rophola and bophola
+        phoneme_seq, char_seq = [], []
+        skip = 0
+        for i, char in enumerate(text):
+            if skip > 0:
+                skip -= 1
+            # Take two
+            elif text[i : i + 2] in BN.in_diphthong_set | BN.fi_diphthong_set:
+                # when y is not part of a diphthong
+                if (
+                    i < len(text) - 2
+                    and text[i + 1] in [BN.ya, BN.yya]
+                    and text[i + 2] in BN.fi_set_V | BN.fi_set_C
+                ):
+                    phoneme_seq.append(B2P.charmap[char])
+                    char_seq.append(char)
+                # for all diphthongs
+                else:
+                    skip = 1
+                    phoneme_seq.append(B2P.charmap[text[i : i + 2]])
+                    char_seq.append(text[i : i + 2])
+            # For bophala
+            elif (
+                i > 1
+                and char == BN.ba
+                and text[i - 1] == BN.virama
+                and text[i - 2] in {BN.sa}
+            ):
+                phoneme_seq.append(Phoneme.w.value)
+                char_seq.append(char)
+            # For r vocalic
+            elif char == BN.v_r_vocalic:
+                if allow_multiple:
+                    phoneme_seq.extend([BN.virama, Phoneme.r.value, Phoneme.i.value])
+                else:
+                    phoneme_seq.append(Phoneme.r.value)
+                char_seq.append(char)
+            else:
+                phoneme_seq.append(B2P.charmap.get(char, char))
+                char_seq.append(char)
 
-        for key in self.sorted_keys:
-            text = text.replace(key, f"{sep}{B2P.charmap[key]}{sep}")
-        return text.replace(sep * 2, sep)[1:-1].split(sep)
-
-    def extract_char_seq(
-        self,
-        text: str,
-        phoneme_seq: List[str],
-    ) -> List[str]:
-        """Segmentation of word according to phoneme_seq
-
-        Args:
-            text (str): text in Bengali
-            phoneme_seq (List[str]): phoneme sequence
-
-        Returns:
-            List[str]: character sequence
-        """
-        char_seq: List[str] = []
-        curr_pos = 0
-        for phoneme in phoneme_seq:
-            if phoneme not in self.phoneme_set:
-                char_seq.append(text[curr_pos])
-                curr_pos += 1
-            elif text[curr_pos] in B2P.p2b_charmap[phoneme]:
-                char_seq.append(text[curr_pos])
-                curr_pos += 1
-            elif text[curr_pos : curr_pos + 2] in B2P.p2b_charmap[phoneme]:
-                char_seq.append(text[curr_pos : curr_pos + 2])
-                curr_pos += 2
-
-        return char_seq
+        return phoneme_seq, char_seq
 
     def prepare_syllable_phoneme(self, syllable: str) -> List[str]:
         """Prepare Syllable phonemes for spelling module
@@ -77,7 +75,7 @@ class PhonemeConvertor:
         Returns:
             List[str]: modified phoneme sequence
         """
-        phoneme_seq = self.extract_phoneme_seq(syllable)
+        phoneme_seq, _ = self.extract_seq(syllable, allow_multiple=True)
         new_phoneme_seq: List[str] = []
         last_idx = len(phoneme_seq) - 1
         # 1. Add schwa wherever necessary
