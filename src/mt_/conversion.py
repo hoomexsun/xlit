@@ -26,6 +26,7 @@ class PhonemeConvertor:
 
         phoneme_seq, char_seq = [], []
         skip = 0
+        last_idx = len(text) - 1
         for i, char in enumerate(text):
             if skip > 0:
                 skip -= 1
@@ -33,7 +34,7 @@ class PhonemeConvertor:
             elif text[i : i + 2] in BN.in_diphthong_set | BN.fi_diphthong_set:
                 # when y is not part of a diphthong
                 if (
-                    i < len(text) - 2
+                    i < last_idx - 1
                     and text[i + 1] in [BN.ya, BN.yya]
                     and text[i + 2] in BN.fi_set_V | BN.fi_set_C
                 ):
@@ -41,9 +42,9 @@ class PhonemeConvertor:
                     char_seq.append(char)
                 # for all diphthongs
                 else:
-                    skip = 1
                     phoneme_seq.append(B2P.charmap[text[i : i + 2]])
                     char_seq.append(text[i : i + 2])
+                    skip = 2 if i < last_idx - 2 and text[i + 2] == BN.virama else 1
             # For bophala
             elif (
                 i > 1

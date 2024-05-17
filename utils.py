@@ -93,8 +93,8 @@ def prepare_corpus_transcription():
     )
     count_ind, count_exo, count_ne, count_hy, count_rem = 0, 0, 0, 0, 0
     words_ind, words_exo = set(), set()
-    for i, line in enumerate(tqdm(original, desc="Extracting...")):
-        # print(f"{i+1=} | {line=}")
+    for i, line in enumerate(tqdm(original, desc="Extracting..."), start=1):
+        # print(f"{i=}. {line=}")
         word_bn, _, dist_id = line.split("\t")
         dist_id = int(dist_id)
         if dist_id == 1:
