@@ -50,7 +50,18 @@ class PhonemeConvertor:
                 i > 1
                 and char == BN.ba
                 and text[i - 1] == BN.virama
-                and text[i - 2] in {BN.sa}
+                and text[i - 2]
+                in {
+                    BN.sa,
+                    BN.sha,
+                    BN.ssa,
+                    BN.ka,
+                    BN.kha,
+                    BN.da,
+                    BN.dda,
+                    BN.ddha,
+                    BN.dha,
+                }
             ):
                 phoneme_seq.append(Phoneme.w.value)
                 char_seq.append(char)
