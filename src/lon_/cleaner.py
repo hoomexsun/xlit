@@ -56,13 +56,16 @@ class Cleaner:
     def fix_ngou_lonsum(word_mm: str):
         if MM.ngou_lonsum not in word_mm:
             return word_mm
-        fixed_chars_reverse = ""
+        fixed_word_mm = ""
         for i, char in enumerate(word_mm):
             if char == MM.ngou_lonsum and word_mm[i - 1] not in MM.cheitap_set_V:
-                fixed_chars_reverse += MM.nung
+                fixed_word_mm += MM.nung
             else:
-                fixed_chars_reverse += char
-        return fixed_chars_reverse
+                fixed_word_mm += char
+
+        fixed_word_mm = fixed_word_mm.replace(MM.nung + MM.apun_iyek, MM.nung)
+
+        return fixed_word_mm
 
     @staticmethod
     def filter_mm_utf(word_mm: str) -> str:
