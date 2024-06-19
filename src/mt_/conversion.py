@@ -61,6 +61,7 @@ class PhonemeConvertor:
                     BN.dda,
                     BN.ddha,
                     BN.dha,
+                    BN.pa,
                 }
             ):
                 phoneme_seq.append(Phoneme.w.value)
