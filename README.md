@@ -1,9 +1,9 @@
-# xlit 🚧
+# xlit 🏁
 
-This repository include `glyph correction` (s-550) and `transliteration` of Manipuri/Meeteilon (Bengali Script to Meetei/Meitei Mayek).
+This repository contains the two modules developed for Machine Transliteration from raw data (begnali glyph through s550 font) to Meeteilon (Meetei/Meitei Mayek Unicode). It includes
 
-- `glyph_correction`: This module is fully developed! 🏁
-- `transliteration`: This module is currently under development! 🚧
+- `glyph correction` (s-550 → bn_unicode)
+- `transliteration` (bn_unicode → mm_unicode)
 
 ## 1. Quickstart
 
@@ -133,13 +133,13 @@ If neither input file and output directory is specified, it will use the default
 
 Check out `gui` built using tkinter on [XLIT GUI](https://github.com/hoomexsun/xlit_gui).
 
-## 5. Theory
+## 5. Theory / Paper Replication
 
-This repository is an implementation of a paper `currently in writing`. To replicate the paper, run `replicate_paper.py`.
+This repository is an implementation of a paper `currently submitted for review`. To replicate the paper, run `replicate_paper_gc.py` and `replicate_paper_mt.py`.
 
 ![whole diagram](./images/block_whole.png)
 
-Visualization of Transliteration module.
+Visualization of the Transliteration module.
 
 ![transliteration](./images/block_transliteration.png)
 
@@ -162,7 +162,7 @@ Visualization of Transliteration module.
      - bᵢ and bᵢ₊₁ are replaced with correct unicode
 5. Return the resulting string **B**
 
-### 5.2. Algorithm 2 (Syllabification) 🚧
+### 5.2. Algorithm 2 (Syllabification)
 
 ![syllabification](./images/syllabification.png)
 
@@ -191,4 +191,4 @@ Visualization of Transliteration module.
 - [Meetei/Meitei Mayek Transliteration](https://github.com/hoomexsun/xlit).
 - [Meetei/Meitei Mayek Transliteration GUI](https://github.com/hoomexsun/xlit_gui).
 - [Meetei/Meitei Mayek Keyboard for Windows](https://github.com/hoomexsun/mm_keyboard).
-- [Wahei Tool](https://https://github.com/hoomexsun/wahei).
+- [Khutsem Tool](https://https://github.com/hoomexsun/khutsem).

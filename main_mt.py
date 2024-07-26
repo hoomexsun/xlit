@@ -6,94 +6,11 @@ from tqdm import tqdm
 
 from src.mt_base_ import Baseline, BaselineExtended
 from src.mt_ import MTransliteration
-from utils import prepare_files, prepare_mt_transcription, save_wordmap
+from prepare import prepare_files, prepare_mt_files
+from utils import save_wordmap
 
 
-MT_DEFAULT_ROOT_DIR = "data/mt_"
 MT_BASE_ROOT_DIR = "data/mt_base_"
-
-
-# 1. Run simple
-def run_simple(
-    filename: Union[str, Path] = "",
-    output_dir: Union[str, Path] = "",
-) -> None:
-    """
-    Input: text_bn
-    Output (output.txt): text_mm
-    """
-    mt = MTransliteration()
-    data_file, output_file = prepare_files(
-        filename,
-        output_dir,
-        output_files=["output.txt"],
-        default_root_dir=MT_DEFAULT_ROOT_DIR,
-    )
-    content: str = data_file.read_text(encoding="utf-8").strip()
-    output: str = mt.transliterate_words(content)
-    output_file.write_text(output, encoding="utf-8")
-
-
-# 2. Run detailed for both syllabification and transliteration results
-def run_detailed(
-    filename: Union[str, Path] = "",
-    output_dir: Union[str, Path] = "",
-) -> None:
-    """
-    Input: words_bn
-    Output (detailed.txt):
-        word_bn\tsyllabified_word_bn\tsyllabified_phonemes\tsyllabified_word_mm
-    """
-    mt = MTransliteration()
-    words_file, detailed_txt_file = prepare_files(
-        filename,
-        output_dir,
-        output_files=["detailed.txt"],
-        default_root_dir=MT_DEFAULT_ROOT_DIR,
-    )
-    content: str = words_file.read_text(encoding="utf-8").strip()
-    output: str = mt.transliterate_words(content, show_steps=True)
-    detailed_content = "\n".join(
-        [
-            f"{word_bn}\t{detailed_word_mm}"
-            for word_bn, detailed_word_mm in zip(
-                content.split("\n"), output.split("\n")
-            )
-        ]
-    )
-    detailed_txt_file.write_text(detailed_content, encoding="utf-8")
-
-
-# 3. Run wordmap to get wordmaps
-def run_wordmap(
-    filename: Union[str, Path] = "",
-    output_dir: Union[str, Path] = "",
-) -> None:
-    """
-    Input: words_bn
-    Output:
-        0. uniq_words_mm.txt: unique word_mm ordered
-        1. wordmap.txt: word_bn\tword_mm
-        2. wordmap.json: {word_bn:word_mm}
-        3. wordmap.csv: word_bn,word_mm
-    """
-    mt = MTransliteration()
-    data_file, uniq_words_mm_file, wordmap_file = prepare_files(
-        filename,
-        output_dir,
-        output_files=["uniq_words_mm.txt", "wordmap"],
-        default_root_dir=MT_DEFAULT_ROOT_DIR,
-    )
-    content: str = data_file.read_text(encoding="utf-8").strip()
-
-    output: str = mt.transliterate_words(content)
-    uniq_words_mm: List[str] = sorted(set(output.split("\n")))
-    uniq_words_mm_file.write_text("\n".join(uniq_words_mm).strip(), encoding="utf-8")
-    wordmap = {
-        word: transliterated
-        for word, transliterated in zip(content.split("\n"), output.split("\n"))
-    }
-    save_wordmap(wordmap=wordmap, wordmap_file=wordmap_file)
 
 
 # 4. Run evaluate using Proposed Transliteration
@@ -110,19 +27,19 @@ def run_evaluate(
         3. result.txt:
     """
     mt = MTransliteration()
-    transcribed_file, transliterated_file, comparison_file, result_file = prepare_files(
+    target_file, output_file, comparison_file, result_file = prepare_files(
         filename or "transcribed.txt",
         output_dir,
         output_files=["transliterated.txt", "comparison.txt", "result"],
         use_root_for_input=use_root,
-        default_root_dir=MT_DEFAULT_ROOT_DIR,
+        root_dir=MT_DEFAULT_ROOT_DIR,
     )
     # Proposed Model
     save_evaluation(
         model_name="Proposed",
         transliteration_func=mt.transliterate,
-        transcribed_file=transcribed_file,
-        transliterated_file=transliterated_file,
+        transcribed_file=target_file,
+        transliterated_file=output_file,
         comparison_file=comparison_file,
         result_file=result_file,
     )
@@ -163,7 +80,7 @@ def run_evaluate_baseline(
             "ext_result",
         ],
         use_root_for_input=use_root_for_input,
-        default_root_dir=MT_BASE_ROOT_DIR,
+        root_dir=MT_BASE_ROOT_DIR,
     )
 
     # Baseline
@@ -252,10 +169,6 @@ def save_evaluation(
 
 
 if __name__ == "__main__":
-    prepare_mt_transcription()
-    # Main functions
-    run_simple()
-    run_detailed()
-    run_wordmap()
+
     run_evaluate()
     run_evaluate_baseline()
