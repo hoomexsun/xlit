@@ -1,5 +1,4 @@
 from typing import List
-from tqdm import tqdm
 
 
 from ..lon_ import Cleaner
@@ -27,7 +26,7 @@ class MTransliteration:
         show_steps: bool = False,
     ) -> str:
         words = []
-        for i, word in enumerate(tqdm(text.split(), desc="Transliterating...")):
+        for i, word in enumerate(text.split()):
             # print(f"{i=} | {word=}")
             words.append(self.transliterate(word=word, show_steps=show_steps))
         return "\n".join(words)

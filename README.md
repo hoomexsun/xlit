@@ -15,8 +15,7 @@ This repository contains the two modules developed for Machine Transliteration f
 
 2. Install python requirements. Please refer [requirements.txt](requirements.txt).
 3. Enter your file, specify the location and run either `main.py` or
-   - run `main_gc.py` for glyph correction.
-   - run `main_mt.py` for transliteration.
+   - run `python run.py`.
 
 For custom usage, follow after step 1 & 2.
 
@@ -85,19 +84,16 @@ The repository contains high level implementation in python and the content is d
    ...
    ```
 
-## 3. Additional modes and evaluation
+## 3. Modes for `run.py`
 
-The following methods are readily available for experimenting:
+The following modes are readily available while invoking `run` from `run.py` for experimenting:
 
-| Functions               | main_mt                                                                                                                                      | main_gc                                                                                                                                                                       |
-| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| run_simple()            | _Transliteration of Bengali text inside a file._                                                                                             | _Glyph correction of s550 text inside a file._                                                                                                                                |
-| run_detailed()          | _Step-wise transliteration including syllabified Bengali words, phonemes and Meetei Mayek words from a list of Bengali words inside a file._ | _Step-wise glyph correction at every step from a list of s550 words inside a file._                                                                                           |
-| run_wordmap()           | _Building wordmap (json, csv & txt) from a list of Bengali words inside a file._                                                             | _Building wordmap (json, csv & txt) from a list of s550 words inside a file._                                                                                                 |
-| run_evaluate()          | _Evaluation (WER & CER) of a list of parallel Bengali and Meetei Mayek words inside a file using Proposed Transliteration Model._            | -                                                                                                                                                                             |
-| run_evaluate_baseline() | _Evaluation (WER & CER) of a list of parallel Bengali and Meetei Mayek words inside a file using Baseline Transliteration Models._           | -                                                                                                                                                                             |
-| evaluate()              | -                                                                                                                                            | _Evaluation (WER & CER) from a file containing manually calculated edit distance between ground truth and corrected Bengali words. (Also includes distribution of word type)_ |
-| prepare_eval()          | -                                                                                                                                            | _Prepare evaluation file so that we can manually enter minimum edit distance value since it cannot be done programmatically._                                                 |
+| Modes      | src.mt\_                                                                                                                                     | src.gc\_                                                                                                                                                                           |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 'simple'   | _Transliteration of Bengali text inside a file._                                                                                             | _Glyph correction of s550 text inside a file._                                                                                                                                     |
+| 'detailed' | _Step-wise transliteration including syllabified Bengali words, phonemes and Meetei Mayek words from a list of Bengali words inside a file._ | _Step-wise glyph correction at every step from a list of s550 words inside a file._                                                                                                |
+| 'wordmap'  | _Building wordmap (json, csv & txt) from a list of Bengali words inside a file._                                                             | _Building wordmap (json, csv & txt) from a list of s550 words inside a file._                                                                                                      |
+| 'evaluate' | _Evaluation (Accuracy & CER) of a list of parallel Bengali and Meetei Mayek words inside a file using Proposed Transliteration Model._       | _Evaluation (Accuracy & CER) from a file containing manually calculated edit distance between ground truth and corrected Bengali words. (Also includes distribution of word type)_ |
 
 ### 3.1. Script Mode
 
@@ -115,8 +111,7 @@ options:
    -d Enable detailed mode
    -w Enable wordmap mode
    -e Enable evaluation mode
-   --file FILE Input file path
-   --out OUT Output directory path
+   --root ROOT Directory path which contains words.txt or targets.txt
 ```
 
 If neither input file and output directory is specified, it will use the default specified in the functions.
@@ -176,15 +171,42 @@ Visualization of the Transliteration module.
 3. for each phoneme pᵢ from i ← 1 to n-1:
    - if pᵢ is `U+09CD`:
      - if i ≠ n-1:
-       append mm_char_apun to **S**
+       - append mm_char_apun to **S**
    - else if flag is True:
-     append mm_end[pᵢ] to **S**
+     - append mm_end[pᵢ] to **S**
+     - flag ← False
    - else if pᵢ is consonant:
-     append mm_begin[pᵢ] to **S**
+     - append mm_begin[pᵢ] to **S**
    - else:
-     flag ← True
-     append mm_begin[pᵢ] to **S**
+     - flag ← True
+     - append mm_begin[pᵢ] to **S**
 4. Return the resulting string **S**
+
+### 5.4 Results
+
+#### Accuracy
+
+|            | Indigenous words | Exotic words | News Corpus | Literature Corpus |
+| ---------- | ---------------- | ------------ | ----------- | ----------------- |
+| Baseline 1 | 38.92            | 29.88        | 29.08       | 54.32             |
+| Baseline 2 | 54.88            | 47.08        | 46.06       | 69.52             |
+| Proposed   | 85.02            | 86.18        | 84.48       | 90.08             |
+
+#### CER
+
+|            | Indigenous words | Exotic words | News Corpus | Literature Corpus |
+| ---------- | ---------------- | ------------ | ----------- | ----------------- |
+| Baseline 1 | 11.86            | 14.94        | 14.50       | 9.01              |
+| Baseline 2 | 8.97             | 8.77         | 9.51        | 6.58              |
+| Proposed   | 2.50             | 2.23         | 2.56        | 1.61              |
+
+#### Error distribution in Glyph Correction
+
+![Comparison](./data/gc_/graph.png)
+
+#### Result Comparison of Machine Transliteration
+
+![Comparison](./data/corpus/graph.png)
 
 ## See also
 

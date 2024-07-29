@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List
 
 from tqdm import tqdm
 
@@ -7,46 +7,18 @@ from src.lon_ import Cleaner
 from utils import read_list, read_dict, write_list, write_dict
 
 
-def prepare_gc_files() -> None:
-    """Prepare corrected files for glyph correction."""
-    print("Preparing glyph correction files:")
-    corrected = read_dict("data/corrected.txt")
-    write_dict("data/gc_/corrected.txt", corrected)
-    write_list("data/gc_/words.txt", corrected.keys(), True)
-    print(f"No of words: {len(corrected)}")
-
-
-def prepare_mt_files() -> None:
-    """Prepare transcribed files for machine transliteration."""
-    print("Preparing machine transliteration files:")
-    transcribed = read_dict("data/transcribed.txt")
-    write_dict("data/mt_/transcribed.txt", transcribed)
-    write_dict("data/mt_base_/transcribed.txt", transcribed)
-    write_list("data/mt_/words.txt", transcribed.keys(), True)
-    write_list("data/mt_base_/words.txt", transcribed.keys(), True)
-    print(f"No of words: {len(transcribed)}")
-
-
 def prepare_files(
-    output_files: List[Union[str, Path]],
-    root_dir: str,
-    use_root_for_input: bool = False,
-) -> Tuple[Path]:
-    """Prepare default files for Glyph Correction & Machine Transliteration."""
-    filename, output_dir = "", ""
-    root_dir = Path(root_dir)
-    filename = filename if not use_root_for_input else root_dir / filename
-    data_file = root_dir / "words.txt" if not filename else Path(filename)
-    output_files = [
-        root_dir / file if not output_dir else Path(output_dir) / file
-        for file in output_files
-    ]
-
-    all_files = [data_file] + output_files
-    return tuple(all_files)
+    src_file: str | Path,
+    target_dir: str | Path,
+) -> None:
+    """Prepare corrected files."""
+    print(f"Preparing files:\n{src_file} --> --> --> {target_dir}\n")
+    target_dict = read_dict(src_file)
+    write_dict(Path(target_dir) / "target.txt", target_dict)
+    write_list(Path(target_dir) / "words.txt", target_dict.keys(), True)
+    print(f"No of words: {len(target_dict)}")
 
 
-#! Fix the transcription here first -> examples/mt_/transcribed.txt
 def prepare_paper_replication():
     """Prepare corpus transcription by splitting words into various categories."""
     words_news = {
@@ -94,10 +66,10 @@ def prepare_paper_replication():
         if word_bn in words_literature:
             words_dict[3].append(new_line)
 
-    write_list("data/corpus/indigenous_words/transcribed.txt", words_dict[0]),
-    write_list("data/corpus/exotic_words/transcribed.txt", words_dict[1]),
-    write_list("data/corpus/news_subset/transcribed.txt", words_dict[2]),
-    write_list("data/corpus/literature_subset/transcribed.txt", words_dict[3]),
+    write_list("data/corpus/indigenous_words/target.txt", words_dict[0]),
+    write_list("data/corpus/exotic_words/target.txt", words_dict[1]),
+    write_list("data/corpus/news_subset/target.txt", words_dict[2]),
+    write_list("data/corpus/literature_subset/target.txt", words_dict[3]),
 
     print(
         f"Completed Transcription\n{len(original)=}\n"
@@ -111,16 +83,16 @@ def prepare_paper_replication():
     )
 
 
-#! Text Cleaning "data/mt_/transcribed.txt"
-def clean_transcribed() -> None:
-    """Clean the transcribed file."""
+#! Text Cleaning "data/mt_/target.txt"
+def clean_target() -> None:
+    """Clean the target file."""
     c = Cleaner()
-    transcribed_file: Path = Path("data/mt_/transcribed.txt")
+    target_file: Path = Path("data/mt_/target.txt")
     new_lines = set()
-    lines = transcribed_file.read_text(encoding="utf-8").strip().split("\n")
+    lines = target_file.read_text(encoding="utf-8").strip().split("\n")
     for line in tqdm(lines, desc="Cleaning..."):
         word_bn, word_mm = line.split("\t")
         cleaned_word_bn = word_bn
         cleaned_word_mm = c.clean_mm_utf(word_mm)
         new_lines.add(f"{cleaned_word_bn}\t{cleaned_word_mm}")
-    transcribed_file.write_text("\n".join(sorted(new_lines)), encoding="utf-8")
+    target_file.write_text("\n".join(sorted(new_lines)), encoding="utf-8")

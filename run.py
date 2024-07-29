@@ -1,87 +1,135 @@
+from pathlib import Path
 from typing import Callable
 
-from prepare import prepare_files, prepare_gc_files, prepare_mt_files
+from tqdm import tqdm
+import enchant
+
+from prepare import prepare_files
 from src.gc_ import GlyphCorrection
 from src.mt_ import MTransliteration
-from utils import save_wordmap, write_list
+from src.mt_base_.b2m import Baseline, BaselineExtended
+from utils import read_dict, save_wordmap, write_list
 
 
 all_modes = [
+    "evaluate",
     "simple",
     "detailed",
     "wordmap",
-    "evaluate",
 ]
 
 
-def run(func: Callable, mode: str, baseline: bool = False):
-    print(f"Run info:\n{func.__name__=} | {mode=} | {baseline=}")
-
-    root_dir = "data/gc_" if func.__name__.startswith("correct") else "data/mt_"
-    if baseline:
-        root_dir = root_dir + "base_"
-
+def run(
+    func: Callable,
+    mode: str,
+    model_name: str = "Proposed",
+    root_dir: str | Path = "",
+):
+    model_name = model_name.lower().replace(" ", "_")
     if mode not in all_modes:
         print(f"{mode} is not a valid mode.")
-    # 1. Simple mode
-    elif mode == "simple":
-        data_file, output_file = prepare_files(
-            output_files=["output.txt"],
-            root_dir=root_dir,
-        )
-        content = data_file.read_text(encoding="utf-8").strip()
-        output = func(content, show_steps=True)
+        return
+
+    root_dir = (
+        (Path("data/gc_") if func.__name__.startswith("correct") else Path("data/mt_"))
+        if not root_dir
+        else Path(root_dir)
+    )
+    print(
+        f"Run info:\n{func.__name__=} | {mode=} | {model_name=} | root_dir={root_dir.as_posix()}"
+    )
+
+    # 1. Evaluate mode
+    if mode == "evaluate":
+        evaluate(func, root_dir, model_name)
+        return
+
+    data_file = root_dir / "words.txt"
+    content = data_file.read_text(encoding="utf-8").strip()
+    output = func(content, show_steps=True) if mode == "detailed" else func(content)
+
+    # 2. Simple mode
+    if mode == "simple":
+        output_file = root_dir / "output.txt"
         output_file.write_text(output, encoding="utf-8")
-    # 2. Detailed mode
+    # 3. Detailed mode
     elif mode == "detailed":
-        data_file, output_file = prepare_files(
-            output_files=["detailed.txt"],
-            root_dir=root_dir,
-        )
-        content = data_file.read_text(encoding="utf-8").strip()
-        output = func(content, show_steps=True)
+        # Step details
+        detailed_file = root_dir / "detailed.txt"
         write_list(
-            output_file,
+            detailed_file,
             data=[f"{x}\t{y}" for x, y in zip(content.split("\n"), output.split("\n"))],
         )
-    # 3. Wordmap mode
+    # 4. Wordmap mode
     elif mode == "wordmap":
-        data_file, output_file, wordmap_file = prepare_files(
-            output_files=["uniq_words.txt", "wordmap"],
-            root_dir=root_dir,
-        )
-        content = data_file.read_text(encoding="utf-8").strip()
-        output = func(content)
+        # Unique words
+        unique_file = root_dir / "unique.txt"
         uniq_words = sorted(set(output.split("\n")))
-        write_list(output_file, uniq_words)
+        write_list(unique_file, uniq_words)
+        # Wordmap
+        wordmap_file = root_dir / "wordmap.txt"
         wordmap = {x: y for x, y in zip(content.split("\n"), output.split("\n"))}
         save_wordmap(wordmap=wordmap, wordmap_file=wordmap_file)
-    # 4. Evaluate proposed mode
-    elif not baseline:
-        target_file, output_file, comparison_file, result_file = prepare_files(
-            filename or "transcribed.txt",
-            output_files=["transliterated.txt", "comparison.txt", "result"],
-            use_root_for_input=True,
-            root_dir=root_dir,
-        )
-    # 5. Evaluate baseline modes
-    else:
-        pass
+
+
+def evaluate(
+    func: Callable,
+    root_dir: str | Path,
+    model_name: str,
+):
+    output_dir = Path(root_dir) / model_name
+    output_dir.mkdir(exist_ok=True)
+    print(f"Output directory for evaluation: {output_dir.as_posix()}")
+    target_file, result_file, output_file, comparison_file = (
+        root_dir / "target.txt",
+        output_dir / "result.txt",
+        output_dir / "output.txt",
+        output_dir / "comparison.txt",
+    )
+    target_dict = read_dict(target_file)
+    inputs = sorted(target_dict.keys())
+    output_dict = {x: func(x) for x in tqdm(inputs, desc=f"Executing {model_name}")}
+    num_mismatch = 0  # Number of words with error
+    comparison = []
+    err = 0  # Total edit distance
+    M, N = len(inputs), 0
+    for x in tqdm(inputs, desc=f"Evaluating {model_name}"):
+        target = target_dict[x]
+        output = output_dict[x]
+        if target != output:
+            num_mismatch += 1
+        edit_distance = enchant.utils.levenshtein(target, output)
+        err += edit_distance
+        comparison.append(f"{x}\t{target}\t{output}\t{edit_distance}")
+        N += max(len(target), len(output))
+
+    evaluation = (
+        f"{(num_mismatch/M)*100:.02f}\n{(err/N)*100:.02f}\n"
+        f"Word Level Accuracy={(1-num_mismatch/M)*100=:.02f}% | {num_mismatch=} | {M=}\n"
+        f"Character Level Accuracy={(1-err/N)*100=:.02f}% | {err=} | {N=}"
+    )
+    print(evaluation)
+    result_file.write_text(evaluation)
+    write_list(output_file, [f"{x}\t{y}" for x, y in output_dict.items()])
+    write_list(comparison_file, comparison)
 
 
 def run_gc():
-    prepare_gc_files()
+    prepare_files("data/corrected.txt", "data/gc_")
     gc = GlyphCorrection()
     for mode in all_modes:
         run(gc.correct_words, mode)
 
 
 def run_mt():
-    prepare_mt_files()
+    prepare_files("data/transcribed.txt", "data/mt_")
     mt = MTransliteration()
     for mode in all_modes:
         run(mt.transliterate_words, mode)
-    run(mt.transliterate_words, "evaluate", baseline=True)
+    base1 = Baseline()
+    run(base1.transliterate, "evaluate", model_name="Baseline")
+    base2 = BaselineExtended()
+    run(base2.transliterate, "evaluate", model_name="Baseline 2")
 
 
 if __name__ == "__main__":

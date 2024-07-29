@@ -4,25 +4,38 @@ from typing import Dict
 
 import matplotlib.pyplot as plt
 import pandas as pd
-
-from main_mt import run_evaluate, run_evaluate_baseline
-from utils import prepare_corpus_transcription
+from src.mt_ import MTransliteration
+from src.mt_base_.b2m import Baseline, BaselineExtended
+from run import run
+from prepare import prepare_paper_replication
 
 
 def evaluate(data_subdir_dict: Dict[str, str]):
+    mt = MTransliteration()
+    base1 = Baseline()
+    base2 = BaselineExtended()
     for data_type, transcribed_file in data_subdir_dict.items():
-        transcribed_file = Path(transcribed_file) / "transcribed.txt"
+        root_dir = f"{transcribed_file}"
+        transcribed_file = Path(transcribed_file) / "target.txt"
         print(f"Data type: {data_type}")
-        # Baseline models
-        output_dir = Path(transcribed_file).parent / "mt_base_"
-        os.makedirs(output_dir, exist_ok=True)
-        print(f"\nModel: Baselines | Location: {output_dir.as_posix()}\n")
-        run_evaluate_baseline(transcribed_file, output_dir, False)
-        # Proposed model
-        output_dir = Path(transcribed_file).parent / "mt_"
-        os.makedirs(output_dir, exist_ok=True)
-        print(f"\nModel: Proposed | Location: {output_dir.as_posix()}\n")
-        run_evaluate(transcribed_file, output_dir, False)
+        run(
+            mt.transliterate_words,
+            "evaluate",
+            model_name="Proposed",
+            root_dir=root_dir,
+        )
+        run(
+            base1.transliterate,
+            "evaluate",
+            model_name="Baseline",
+            root_dir=root_dir,
+        )
+        run(
+            base2.transliterate,
+            "evaluate",
+            model_name="Baseline 2",
+            root_dir=root_dir,
+        )
 
 
 def plot(data_subdir_dict: Dict[str, str], result_files: Dict[str, str]):
@@ -77,6 +90,6 @@ if __name__ == "__main__":
         "Baseline 2": "mt_base_/ext_result",
         "Proposed": "mt_/result",
     }
-    prepare_corpus_transcription()
+    prepare_paper_replication()
     evaluate(data_subdir_dict)
     plot(data_subdir_dict, result_files_dict)
