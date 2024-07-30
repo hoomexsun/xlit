@@ -112,7 +112,7 @@ root_dir (str | Path, optional): The root directory for input/output files. Defa
 The methods can be called through script mode via `main.py` as follows:
 
 ```cmd
-usage: main.py [-h] [-m] [-g] [-d] [-w] [-e] [--file FILE] [--out OUT]
+usage: main.py [-h] [-m] [-g] [-d] [-w] [-e] [--root ROOT]
 
 Run from main
 
