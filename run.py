@@ -4,11 +4,11 @@ from typing import Callable
 from tqdm import tqdm
 import enchant
 
-from prepare import prepare_files
+from src.lon_.cleaner import Cleaner
 from src.gc_ import GlyphCorrection
 from src.mt_ import MTransliteration
 from src.mt_base_.b2m import Baseline, BaselineExtended
-from utils import read_dict, save_wordmap, write_list
+from utils import read_dict, save_wordmap, write_dict, write_list
 
 
 all_modes = [
@@ -126,6 +126,19 @@ def evaluate(
     write_list(comparison_file, comparison)
 
 
+# Preparation
+def prepare_files(
+    src_file: str | Path,
+    target_dir: str | Path,
+) -> None:
+    print(f"Preparing files:\n{src_file} --> --> --> {target_dir}\n")
+    target_dict = read_dict(src_file)
+    write_dict(Path(target_dir) / "target.txt", target_dict)
+    write_list(Path(target_dir) / "words.txt", target_dict.keys(), True)
+    print(f"No of words: {len(target_dict)}")
+
+
+# Runner functions
 def run_gc():
     prepare_files("data/corrected.txt", "data/gc_")
     gc = GlyphCorrection()
@@ -147,3 +160,21 @@ def run_mt():
 if __name__ == "__main__":
     run_gc()
     run_mt()
+
+
+# Clean
+def clean_target(file: str | Path) -> None:
+    """Clean the target file."""
+    c = Cleaner()
+    target_file: Path = Path(file)
+    new_lines = set()
+    lines = target_file.read_text(encoding="utf-8").strip().split("\n")
+    for line in tqdm(lines, desc="Cleaning..."):
+        word_bn, word_mm = line.split("\t")
+        cleaned_word_bn = word_bn
+        cleaned_word_mm = c.clean_mm_utf(word_mm)
+        new_lines.add(f"{cleaned_word_bn}\t{cleaned_word_mm}")
+    target_file.write_text("\n".join(sorted(new_lines)), encoding="utf-8")
+
+
+# clean_target("data/mt_/target.txt")

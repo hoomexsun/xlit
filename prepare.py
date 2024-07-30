@@ -19,7 +19,7 @@ def prepare_files(
     print(f"No of words: {len(target_dict)}")
 
 
-def prepare_paper_replication():
+def prepare_paper_mt():
     """Prepare corpus transcription by splitting words into various categories."""
     words_news = {
         line.split("\t")[1].strip() for line in read_list("data/gc_/eval.txt")

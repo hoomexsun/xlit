@@ -1,0 +1,4 @@
+15.51
+2.56
+Word Level Accuracy=(1-num_mismatch/M)*100=84.49% | num_mismatch=7064 | M=45559
+Character Level Accuracy=(1-err/N)*100=97.44% | err=8978 | N=350367

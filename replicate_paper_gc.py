@@ -7,10 +7,10 @@ from run import run
 from utils import read_list
 
 
-def plot_gc():
+def plot():
     # Run in evaluate mode
     gc = GlyphCorrection()
-    run(gc.correct, "evaluate")
+    run(gc.correct_words, "evaluate")
 
     # Get edit distances data from data/gc_/proposed/comparison.txt
     edit_distances = read_edit_distances(Path("data/gc_/proposed/comparison.txt"))
@@ -58,4 +58,4 @@ def read_edit_distances(file: Path):
 
 
 if __name__ == "__main__":
-    plot_gc()
+    plot()

@@ -42,8 +42,8 @@ extras*
 # Don't track below
 data/corpus/*/*/comparison.txt
 data/corpus/*/*/output.txt
+data/corpus/*/target.txt
 data/gc_/*.txt
-data/gc_/*/comparison.txt
 data/gc_/*/output.txt
 data/mt_/*.txt
 data/mt_/*/comparison.txt
