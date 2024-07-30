@@ -24,7 +24,19 @@ def run(
     mode: str,
     model_name: str = "Proposed",
     root_dir: str | Path = "",
-):
+) -> None:
+    """
+    Runs the given function in the specified mode.
+
+    Parameters:
+    func (Callable): The function to be executed.
+    mode (str): The mode in which to run the function. Options are "evaluate", "simple", "detailed", and "wordmap".
+    model_name (str, optional): The name of the model. Defaults to "Proposed".
+    root_dir (str | Path, optional): The root directory for input/output files. Defaults to an empty string.
+
+    Returns:
+    None
+    """
     model_name = model_name.lower().replace(" ", "_")
     if mode not in all_modes:
         print(f"{mode} is not a valid mode.")

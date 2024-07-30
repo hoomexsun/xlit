@@ -1,6 +1,6 @@
 # xlit 🏁
 
-This repository contains the two modules developed for Machine Transliteration from raw data (begnali glyph through s550 font) to Meeteilon (Meetei/Meitei Mayek Unicode). It includes
+This repository contains the two modules developed for Machine Transliteration from raw data (bengali glyph through s550 font) to Meeteilon (Meetei/Meitei Mayek Unicode). It includes
 
 - `glyph correction` (s-550 → bn_unicode)
 - `transliteration` (bn_unicode → mm_unicode)
@@ -64,8 +64,8 @@ For custom usage, follow after step 1 & 2.
 The repository contains high level implementation in python and the content is deeply organized. Refer to Theory Section for better understanding.
 
 - The different modules are stored in `src` directory. Since it is too big, there will be no further explanation. You can modify or extend the implementation for your own work.
-- The data is stored in `examples` directory. You can use your own data to test the methods.
-- Additionally, baseline models are included.
+- The data is stored in `data` directory. You can use your own data to test the methods.
+- Additionally, baseline models are included in `src`.
 
 ## 2. Use in your repository (as submodule)
 
@@ -84,16 +84,28 @@ The repository contains high level implementation in python and the content is d
    ...
    ```
 
-## 3. Modes for `run.py`
+## 3. Built in functions
 
-The following modes are readily available while invoking `run` from `run.py` for experimenting:
+This repository contains an inbuilt function called `run()` in run.py which can be used for experimenting.
 
-| Modes      | src.mt\_                                                                                                                                     | src.gc\_                                                                                                                                                                           |
-| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 'simple'   | _Transliteration of Bengali text inside a file._                                                                                             | _Glyph correction of s550 text inside a file._                                                                                                                                     |
-| 'detailed' | _Step-wise transliteration including syllabified Bengali words, phonemes and Meetei Mayek words from a list of Bengali words inside a file._ | _Step-wise glyph correction at every step from a list of s550 words inside a file._                                                                                                |
-| 'wordmap'  | _Building wordmap (json, csv & txt) from a list of Bengali words inside a file._                                                             | _Building wordmap (json, csv & txt) from a list of s550 words inside a file._                                                                                                      |
-| 'evaluate' | _Evaluation (Accuracy & CER) of a list of parallel Bengali and Meetei Mayek words inside a file using Proposed Transliteration Model._       | _Evaluation (Accuracy & CER) from a file containing manually calculated edit distance between ground truth and corrected Bengali words. (Also includes distribution of word type)_ |
+```docstring
+Runs the given function in the specified mode.
+
+Parameters:
+func (Callable): The function to be executed.
+mode (str): The mode in which to run the function. Options are "evaluate", "simple", "detailed", and "wordmap".
+model_name (str, optional): The name of the model. Defaults to "Proposed".
+root_dir (str | Path, optional): The root directory for input/output files. Defaults to an empty string.
+```
+
+- Given below are the modes and modules (which contains the callable function).
+
+| Modes      | src.mt\_                                                                                                                                     | src.gc\_                                                                                                                                                |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 'simple'   | _Transliteration of Bengali text inside a file._                                                                                             | _Glyph correction of s550 text inside a file._                                                                                                          |
+| 'detailed' | _Step-wise transliteration including syllabified Bengali words, phonemes and Meetei Mayek words from a list of Bengali words inside a file._ | _Step-wise glyph correction at every step from a list of s550 words inside a file._                                                                     |
+| 'wordmap'  | _Building wordmap (json, csv & txt) from a list of Bengali words inside a file._                                                             | _Building wordmap (json, csv & txt) from a list of s550 words inside a file._                                                                           |
+| 'evaluate' | _Evaluation (Accuracy & CER) of a list of parallel Bengali words and Meetei Mayek words inside a file by comparing edit disances._           | _Evaluation (Accuracy & CER) of a list of parallel s550 unicode incompatible words and Bengali unicode words inside a file by comparing edit disances._ |
 
 ### 3.1. Script Mode
 
